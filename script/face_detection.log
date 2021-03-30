@@ -1,0 +1,275 @@
+2020-08-03 23:26:54,390-INFO-face_detection_server.py:222 presenter server is starting...
+2020-08-03 23:26:54,390-INFO-presenter_server.py:79 presenter server starting, type: face_detection
+2020-08-04 01:02:26,475-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:51896, fd:12
+2020-08-04 01:02:26,517-ERROR-presenter_socket_server.py:354 channel name video is not exist.
+2020-08-04 01:02:26,518-INFO-channel_manager.py:216 register channel: video
+2020-08-04 01:02:26,518-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 01:02:26,518-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 01:02:26,740-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 01:02:26,740-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 01:02:26,740-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 51896)>}
+2020-08-04 01:02:26,741-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 01:02:26,741-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 01:02:26,741-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 01:06:22,503-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:51898, fd:12
+2020-08-04 01:06:22,504-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 01:06:22,504-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 01:06:22,724-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 01:06:22,724-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 01:06:22,724-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 51898)>}
+2020-08-04 01:06:22,724-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 01:06:22,724-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 01:06:22,725-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 01:20:24,078-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:51902, fd:12
+2020-08-04 01:20:24,079-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 01:20:24,079-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 01:20:24,307-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 01:20:24,307-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 01:20:24,307-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 51902)>}
+2020-08-04 01:20:24,307-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 01:20:24,307-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 01:20:24,308-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 01:21:58,678-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:51904, fd:12
+2020-08-04 01:21:58,679-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 01:21:58,679-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 01:21:58,905-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 01:21:58,905-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 01:21:58,905-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 51904)>}
+2020-08-04 01:21:58,905-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 01:21:58,905-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 01:21:58,906-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 01:34:43,745-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:32920, fd:12
+2020-08-04 01:34:43,751-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 01:34:43,752-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 01:34:44,024-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 01:34:44,024-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 01:34:44,024-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 32920)>}
+2020-08-04 01:34:44,024-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 01:34:44,024-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 01:34:44,024-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 01:36:02,810-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:32922, fd:12
+2020-08-04 01:36:02,811-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 01:36:02,811-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 01:36:03,137-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 01:36:03,137-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 01:36:03,137-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 32922)>}
+2020-08-04 01:36:03,137-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 01:36:03,137-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 01:36:03,137-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 01:36:39,993-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:32924, fd:12
+2020-08-04 01:36:39,994-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 01:36:39,994-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 01:36:40,296-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 01:36:40,297-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 01:36:40,297-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 32924)>}
+2020-08-04 01:36:40,297-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 01:36:40,297-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 01:36:40,297-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 03:44:18,885-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:32926, fd:12
+2020-08-04 03:44:18,886-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 03:44:18,887-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 03:44:19,118-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 03:44:19,118-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 03:44:19,118-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 32926)>}
+2020-08-04 03:44:19,118-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 03:44:19,118-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 03:44:19,118-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 03:45:00,209-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:32928, fd:12
+2020-08-04 03:45:00,211-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 03:45:00,211-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 03:45:00,526-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 03:45:00,526-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 03:45:00,526-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 32928)>}
+2020-08-04 03:45:00,526-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 03:45:00,526-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 03:45:00,526-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 03:45:50,567-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:32930, fd:12
+2020-08-04 03:45:50,568-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 03:45:50,568-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 03:45:50,891-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 03:45:50,891-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 03:45:50,891-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 32930)>}
+2020-08-04 03:45:50,891-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 03:45:50,892-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 03:45:50,892-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 03:47:49,172-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:32932, fd:12
+2020-08-04 03:47:49,172-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 03:47:49,172-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 03:48:08,048-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 03:48:08,048-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 03:48:08,048-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 32932)>}
+2020-08-04 03:48:08,049-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 03:48:08,049-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 03:48:08,049-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 03:51:19,937-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:32934, fd:12
+2020-08-04 03:51:19,938-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 03:51:19,938-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 03:51:39,014-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 03:51:39,014-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 03:51:39,014-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 32934)>}
+2020-08-04 03:51:39,014-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 03:51:39,014-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 03:51:39,014-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 03:56:30,375-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:32936, fd:12
+2020-08-04 03:56:30,376-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 03:56:30,377-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 03:56:49,110-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 03:56:49,110-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 03:56:49,110-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 32936)>}
+2020-08-04 03:56:49,110-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 03:56:49,110-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 03:56:49,111-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 03:58:39,663-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:32938, fd:12
+2020-08-04 03:58:39,663-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 03:58:39,663-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2020-08-04 03:58:58,460-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2020-08-04 03:58:58,461-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 03:58:58,461-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 32938)>}
+2020-08-04 03:58:58,461-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 03:58:58,461-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 03:58:58,461-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2020-08-04 03:59:56,010-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:32940, fd:13
+2020-08-04 03:59:56,011-INFO-channel_handler.py:215 create videothread-video...
+2020-08-04 03:59:56,011-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:13, media_type:video
+2020-08-04 04:00:14,975-ERROR-presenter_socket_server.py:142 socket 13 receive msg head null
+2020-08-04 04:00:14,975-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2020-08-04 04:00:14,975-INFO-face_detection_server.py:60 clean fd:13, conns:{13: <socket.socket fd=13, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.166', 7006), raddr=('192.168.1.2', 32940)>}
+2020-08-04 04:00:14,975-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2020-08-04 04:00:14,975-INFO-channel_manager.py:139 clean channel: video's resource
+2020-08-04 04:00:14,977-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 15:38:21,119-INFO-face_detection_server.py:222 presenter server is starting...
+2021-02-23 15:38:21,120-INFO-presenter_server.py:79 presenter server starting, type: face_detection
+2021-02-23 15:39:31,558-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:36952, fd:13
+2021-02-23 15:39:31,563-ERROR-presenter_socket_server.py:354 channel name video is not exist.
+2021-02-23 15:39:31,563-INFO-channel_manager.py:216 register channel: video
+2021-02-23 15:39:31,563-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 15:39:31,563-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:13, media_type:video
+2021-02-23 15:39:32,424-ERROR-presenter_socket_server.py:142 socket 13 receive msg head null
+2021-02-23 15:39:32,424-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-02-23 15:39:32,424-INFO-face_detection_server.py:60 clean fd:13, conns:{13: <socket.socket fd=13, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 36952)>}
+2021-02-23 15:39:32,425-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 15:39:32,425-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 15:39:32,425-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 15:40:08,817-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:36980, fd:13
+2021-02-23 15:40:08,818-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 15:40:08,818-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:13, media_type:video
+2021-02-23 15:40:21,217-ERROR-presenter_socket_server.py:142 socket 13 receive msg head null
+2021-02-23 15:40:21,217-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-02-23 15:40:21,217-INFO-face_detection_server.py:60 clean fd:13, conns:{13: <socket.socket fd=13, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 36980)>}
+2021-02-23 15:40:21,217-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 15:40:21,217-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 15:40:21,218-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 16:04:10,794-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:37850, fd:12
+2021-02-23 16:04:10,795-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 16:04:10,796-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2021-02-23 16:04:12,404-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2021-02-23 16:04:12,405-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-02-23 16:04:12,405-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 37850)>}
+2021-02-23 16:04:12,405-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 16:04:12,405-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 16:04:12,405-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 16:07:07,677-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:37956, fd:12
+2021-02-23 16:07:07,678-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 16:07:07,678-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2021-02-23 16:07:08,648-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2021-02-23 16:07:08,648-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-02-23 16:07:08,648-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 37956)>}
+2021-02-23 16:07:08,648-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 16:07:08,648-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 16:07:08,648-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 16:42:39,499-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:39240, fd:12
+2021-02-23 16:42:39,500-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 16:42:39,500-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2021-02-23 16:42:42,838-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2021-02-23 16:42:42,838-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-02-23 16:42:42,838-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 39240)>}
+2021-02-23 16:42:42,838-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 16:42:42,839-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 16:42:42,839-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 16:42:55,822-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:39256, fd:12
+2021-02-23 16:42:55,822-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 16:42:55,822-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2021-02-23 16:43:11,092-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2021-02-23 16:43:11,092-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-02-23 16:43:11,092-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 39256)>}
+2021-02-23 16:43:11,092-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 16:43:11,093-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 16:43:11,093-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 16:49:46,452-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:39502, fd:15
+2021-02-23 16:49:46,453-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 16:49:46,453-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:15, media_type:video
+2021-02-23 16:53:44,487-ERROR-presenter_socket_server.py:142 socket 15 receive msg head null
+2021-02-23 16:53:44,487-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-02-23 16:53:44,487-INFO-face_detection_server.py:60 clean fd:15, conns:{15: <socket.socket fd=15, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 39502)>}
+2021-02-23 16:53:44,487-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 16:53:44,487-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 16:53:44,488-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 16:54:49,003-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:39690, fd:12
+2021-02-23 16:54:49,005-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 16:54:49,005-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2021-02-23 16:54:54,166-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2021-02-23 16:54:54,166-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-02-23 16:54:54,166-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 39690)>}
+2021-02-23 16:54:54,167-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 16:54:54,167-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 16:54:54,168-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 16:55:13,094-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:39706, fd:12
+2021-02-23 16:55:13,095-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 16:55:13,095-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2021-02-23 16:55:18,353-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2021-02-23 16:55:18,353-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-02-23 16:55:18,354-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 39706)>}
+2021-02-23 16:55:18,354-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 16:55:18,354-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 16:55:18,355-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 16:55:22,992-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:39716, fd:12
+2021-02-23 16:55:22,993-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 16:55:22,993-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2021-02-23 16:55:45,374-INFO-presenter_socket_server.py:284 receive event EPOLLHUP
+2021-02-23 16:55:45,375-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006)>}
+2021-02-23 16:55:45,375-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 16:55:45,375-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 16:55:45,376-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 16:56:09,766-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:39750, fd:12
+2021-02-23 16:56:09,767-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 16:56:09,767-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2021-02-23 16:56:26,960-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2021-02-23 16:56:26,960-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-02-23 16:56:26,960-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 39750)>}
+2021-02-23 16:56:26,960-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 16:56:26,961-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 16:56:26,961-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-02-23 16:56:34,116-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:39766, fd:12
+2021-02-23 16:56:34,117-INFO-channel_handler.py:215 create videothread-video...
+2021-02-23 16:56:34,117-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2021-02-23 16:57:17,256-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2021-02-23 16:57:17,257-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-02-23 16:57:17,257-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 39766)>}
+2021-02-23 16:57:17,257-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-02-23 16:57:17,257-INFO-channel_manager.py:139 clean channel: video's resource
+2021-02-23 16:57:17,258-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-03-05 17:07:12,579-INFO-face_detection_server.py:222 presenter server is starting...
+2021-03-05 17:07:12,580-INFO-presenter_server.py:79 presenter server starting, type: face_detection
+2021-03-05 17:10:01,007-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:39098, fd:17
+2021-03-05 17:10:01,010-ERROR-presenter_socket_server.py:354 channel name video is not exist.
+2021-03-05 17:10:01,010-INFO-channel_manager.py:216 register channel: video
+2021-03-05 17:10:01,011-INFO-channel_handler.py:215 create videothread-video...
+2021-03-05 17:10:01,011-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:17, media_type:video
+2021-03-05 17:10:05,682-ERROR-presenter_socket_server.py:142 socket 17 receive msg head null
+2021-03-05 17:10:05,682-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-03-05 17:10:05,682-INFO-face_detection_server.py:60 clean fd:17, conns:{17: <socket.socket fd=17, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 39098)>}
+2021-03-05 17:10:05,683-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-03-05 17:10:05,683-INFO-channel_manager.py:139 clean channel: video's resource
+2021-03-05 17:10:05,683-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-03-05 17:11:38,579-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:39102, fd:12
+2021-03-05 17:11:38,581-INFO-channel_handler.py:215 create videothread-video...
+2021-03-05 17:11:38,581-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2021-03-05 17:11:39,246-ERROR-presenter_socket_server.py:142 socket 12 receive msg head null
+2021-03-05 17:11:39,246-ERROR-presenter_socket_server.py:204 msg_total_len is None.
+2021-03-05 17:11:39,247-INFO-face_detection_server.py:60 clean fd:12, conns:{12: <socket.socket fd=12, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('192.168.1.223', 7006), raddr=('192.168.1.2', 39102)>}
+2021-03-05 17:11:39,247-INFO-channel_handler.py:124 videothread-video set _close_thread_switch True
+2021-03-05 17:11:39,247-INFO-channel_manager.py:139 clean channel: video's resource
+2021-03-05 17:11:39,247-INFO-channel_handler.py:226 Stop thread:videothread-video.
+2021-03-05 20:12:40,460-INFO-presenter_socket_server.py:255 create new connection:client-ip:192.168.1.2, client-port:39104, fd:12
+2021-03-05 20:12:41,637-INFO-channel_manager.py:127 create channel resource, channel_name:video, channel_fd:12, media_type:video
+2021-03-05 20:12:41,589-INFO-channel_handler.py:215 create videothread-video...

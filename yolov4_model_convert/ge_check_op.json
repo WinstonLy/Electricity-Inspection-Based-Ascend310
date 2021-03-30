@@ -1,0 +1,27 @@
+{
+    "graph_id": 0,
+    "op": [
+        {
+            "error_type": "infer_shape_error",
+            "input0": {
+                "data_type": "DT_FLOAT",
+                "layout": "NCHW",
+                "shape": [
+                    1,
+                    3,
+                    608,
+                    608
+                ]
+            },
+            "name": "input_0_huawei_aipp",
+            "output0": {
+                "data_type": "DT_FLOAT",
+                "layout": "ND",
+                "shape": []
+            },
+            "reason": "InferShapeFailed!",
+            "type": "Aipp"
+        }
+    ],
+    "session_id": 0
+}

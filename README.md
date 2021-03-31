@@ -28,8 +28,7 @@
     >| feature_map_2 | -1x255x38x38        | FLOAT32  | NCHW         |
     >| feature_map_3 | -1x255x19x19        | FLOAT32  | NCHW         |
     >
-    >
-
+    
 - 获取权重文件之后，修改修改demo_pytorch2onnx.py源码，只保留模型Backbone，去除不支持的后处理算子
 
     ```python
@@ -208,13 +207,18 @@
 
 ### 后处理代码开发问题
 
-针对于YOLOv4的后处理代码，参考[华为Model zoo的ATC YOLO v4项目](https://ascend.huawei.com/zh/#/software/modelzoo/detail/1/abb7e641964c459398173248aa5353bc)进行测试。
-
-该项目中提供了YOLO v4的后处理脚本（`bin_to_predict_yolov4_pytorch.py`)。由于模型转换的过程中去除了YOLO v4的后处理代码，因此在程序运行的过程中看不到相应的处理结果，为完成YOLO v4的后处理模块，采用以下步骤：
+`yolov4_model_convert`文件夹中提供了YOLO v4的后处理脚本（`bin_to_predict_yolov4_pytorch.py`)。由于模型转换的过程中去除了YOLO v4的后处理代码，因此在程序运行的过程中看不到相应的处理结果，为完成YOLO v4的后处理模块，采用以下步骤：
 
 1. 首先采用的方案是利用yolo v3的后处理代码来进行替换，但是进行处理的结果发现不正确，初步定为解算不正确
 
 2. 将模型推理的结果（在创建的模型输出的时候将三个`feature map`存放到一个vector数组中）保存到一个二进制文件中（`.bin`文件），将其拷贝到`ATC YOLO v4`的文件夹中利用python文件进行后处理，得到的输出结果正确，确定模型转换过程正确，推理结果正确，出错的环节是后处理（解算+NMS）。
+
+    - python代码命令：
+
+        ```python
+        python3.7 bin_to_predict_yolov4_pytorch.py --bin_data_path ./result/ --det_results_path ./detection-results/ --origin_jpg_path ./data/ --coco_class_names ./coco2014.names 
+        #在ModelProcess.cpp文件中将三个feature_map保存为二进制文件中存放到 yolov4_model_convert下的result目录下，图·图片也需要保存下来存放到data目录下，然后使用上面的命令进行后处理
+        ```
 
 3. 对比C++后处理代码和Python后处理代码，发现代码整体思路一致，唯一有问题的是进行解算的时候不知道输出的数据排布格式是什么样的。
 

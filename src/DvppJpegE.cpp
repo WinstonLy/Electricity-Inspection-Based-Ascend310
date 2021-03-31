@@ -141,11 +141,11 @@ aclError DvppJpegE::Process(size_t width, size_t height, vector<DetectionResult>
     clock_t endTime = clock();
     resultVenc << "venc a frame time: " << (double)(endTime - beginTime)*1000/CLOCKS_PER_SEC << " ms" <<endl;
         
-    // static int countImage = 0;
-    // std::string file = "./out/result/output" + std::to_string(countImage) + ".jpg";
-    // bool flag = false;
-    // WriteToFile(file.c_str(), encodeOutBufferDev, encodeOutBufferSize, flag);
-    // ++countImage;
+    static int countImage = 0;
+    std::string file = "./results/output" + std::to_string(countImage) + ".jpg";
+    bool flag = false;
+    WriteToFile(file.c_str(), encodeOutBufferDev, encodeOutBufferSize, flag);
+    ++countImage;
  
     SendImageDisplay(detectionResults);
     return ACL_ERROR_NONE;

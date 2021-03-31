@@ -1,10 +1,10 @@
 /*
 * @Author: winston
 * @Date:   2021-01-07 09:24:43
-* @Last Modified by:   winston
-* @Last Modified time: 2021-03-29 23:05:03
+* @Last Modified by:   WinstonLy
+* @Last Modified time: 2021-03-30 14:31:02
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/atlas200dk_yolov4_test/src/DvppVenc.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/DvppVenc.cpp 
 */
 #include <iostream>
 
@@ -42,7 +42,7 @@ static void VencCallBack(acldvppPicDesc* input, acldvppStreamDesc* output, void*
 
             if(ret == 0){
             	uint32_t size = acldvppGetStreamDescSize(output);
-            	// ATLAS_LOG_INFO("venc buffer size = %d", size);
+            	ATLAS_LOG_INFO("venc buffer size = %d", size);
 
             	std::string fileNameSave = "./data/dvpp_venc.h264";
             	bool flag = false;

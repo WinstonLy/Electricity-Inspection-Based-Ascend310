@@ -1,10 +1,10 @@
 /*
 * @Author: winston
 * @Date:   2020-12-31 17:11:08
-* @Last Modified by:   winston
-* @Last Modified time: 2021-03-30 10:07:08
+* @Last Modified by:   WinstonLy
+* @Last Modified time: 2021-03-30 15:18:08
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/atlas200dk_yolov4_test/src/DvppVpcResize.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/DvppVpcResize.cpp 
 */
 #include "DvppVpcResize.h"
 #include <string>

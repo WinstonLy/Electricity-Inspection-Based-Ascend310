@@ -1,10 +1,10 @@
 /*
 * @Author: winston
 * @Date:   2021-01-07 17:08:57
-* @Last Modified by:   winston
-* @Last Modified time: 2021-03-30 09:59:20
+* @Last Modified by:   WinstonLy
+* @Last Modified time: 2021-03-30 15:54:39
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/atlas200dk_yolov4_test/src/DvppVdec.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/DvppVdec.cpp 
 */
 #include <iostream>
 #include <string>
@@ -39,15 +39,15 @@ static void VdecCallback(acldvppStreamDesc* input, acldvppPicDesc* output, void*
                 // process task: write file
                 int size = acldvppGetPicDescSize(output);
                 std::cout << "vdec callback output size: " << size << std::endl;
-     //            // ATLAS_LOG_INFO("output size: %u", size);
-                // std::string fileNameSave = "./data/vdecImage" + std::to_string(count);
-     //            // vdec输出结果在device侧，在WriteToFile方法中进行下述处理
+     //         // ATLAS_LOG_INFO("output size: %u", size);
+                // std::string fileNameSave = "./data/dvpp_vdec" + std::to_string(count);
+     //         // vdec输出结果在device侧，在WriteToFile方法中进行下述处理
  				// // 如果运行在host侧，则将device侧内存拷贝到host侧并保存；如果运行在device侧，则在device侧直接保存结果
 
-     //            bool flag = true;
-     //            if (!WriteToFile(fileNameSave.c_str(), vdecOutBufferDev, size, flag)) {
-     //                ATLAS_LOG_ERROR("write file failed");
-     //            }
+                // bool flag = true;
+                // if (!WriteToFile(fileNameSave.c_str(), vdecOutBufferDev, size, flag)) {
+                //     ATLAS_LOG_ERROR("write file failed");
+                // }
 
 
                 // 继续resize图像

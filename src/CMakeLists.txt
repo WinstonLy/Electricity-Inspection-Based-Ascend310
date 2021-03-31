@@ -13,6 +13,11 @@ add_definitions(-DENABLE_DVPP_INTERFACE)
 
 #set(CMAKE_SKIP_RPATH TRUE)
 
+
+find_package(PythonInterp REQUIRED)
+
+find_package(PythonLibs REQUIRED)
+
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/../out)
 
 if (EXISTS /usr/local/Ascend/acllib/)
@@ -26,19 +31,22 @@ endif()
 # Header path
 include_directories(
         /home/winston/ascend_ddk/arm/include/
-	#/home/HwHiAiUser/ascend_ddk/arm/include/
-	/usr/local/Ascend/include # for peripheral_api.h
-	${ACL_PATH}/include # acl hearders
+	    #/home/HwHiAiUser/ascend_ddk/arm/include/
+	    /usr/local/Ascend/include # for peripheral_api.h
+	    ${ACL_PATH}/include # acl hearders
+        /usr/include/
         ../inc/
+        ${PYTHON_INCLUDE_DIRS}
 )
 
 # add host lib path
 link_directories(
+
         /home/winston/ascend_ddk/arm/lib/
         #/home/HwHiAiUser/ascend_ddk/arm/lib/
-	/usr/lib64/
+	    /usr/lib64/
         /usr/local/Ascend/acllib/lib64/stub/
-	${ACL_PATH}/lib64/
+	    ${ACL_PATH}/lib64/
 )
 
 add_executable(video_main
@@ -68,7 +76,8 @@ target_link_libraries(video_main
         avutil
         avcodec
         protobuf 
-        presenteragent)
+        presenteragent
+        ${PYTHON_LIBRARIES})
         
 add_executable(image_main
         ImageMain.cpp
@@ -94,4 +103,5 @@ target_link_libraries(image_main
         avutil
         avcodec
         protobuf 
-        presenteragent)
+        presenteragent
+        ${PYTHON_LIBRARIES})

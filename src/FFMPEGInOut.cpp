@@ -1,10 +1,10 @@
 /*
 * @Author: winston
 * @Date:   2021-01-09 16:06:22
-* @Last Modified by:   winston
-* @Last Modified time: 2021-03-29 22:57:59
+* @Last Modified by:   WinstonLy
+* @Last Modified time: 2021-03-30 15:18:09
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/atlas200dk_yolov4_test/src/FFMPEGInOut.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/FFMPEGInOut.cpp 
 */
 #include "FFMPEGInOut.h"
 

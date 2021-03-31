@@ -1,10 +1,10 @@
 /*
 * @Author: winston
 * @Date:   2021-01-11 16:28:43
-* @Last Modified by:   winston
-* @Last Modified time: 2021-03-15 21:32:02
+* @Last Modified by:   WinstonLy
+* @Last Modified time: 2021-03-31 14:43:43
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/atlas200dk_yolov4_test/src/utils.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/utils.cpp 
 */
 #include "utils.h"
 #include <ctime>

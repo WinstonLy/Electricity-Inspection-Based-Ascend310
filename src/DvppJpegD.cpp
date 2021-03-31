@@ -1,10 +1,10 @@
 /*
 * @Author: winston
 * @Date:   2021-03-10 14:39:43
-* @Last Modified by:   winston
-* @Last Modified time: 2021-03-18 10:17:53
+* @Last Modified by:   WinstonLy
+* @Last Modified time: 2021-03-30 15:18:18
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/atlas200dk_yolov4_test/src/DvppJpegD.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/DvppJpegD.cpp 
 */
 #include "DvppJpegD.h"
 #include <iostream>

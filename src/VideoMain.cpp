@@ -84,12 +84,12 @@ int main(int argc, char *argv[]){
 
   
     // 打开记录处理时间的文件
-    resultVdec.open("./data/resultVdec.txt", ios::out);
-    resultVenc.open("./data/resultVenc.txt", ios::out);
-    resultResize.open("./data/resultResize.txt", ios::out);
-    resultInfer.open("./data/resultInfer.txt", ios::out);
-    resultFFmpeg.open("./data/resultFFmpeg.txt", ios::out);
-    resultSend.open("./data/resultSend.txt", ios::out);
+    resultVdec.open("./results/resultVdec.txt", ios::out);
+    resultVenc.open("./results/resultVenc.txt", ios::out);
+    resultResize.open("./results/resultResize.txt", ios::out);
+    resultInfer.open("./results/resultInfer.txt", ios::out);
+    resultFFmpeg.open("./results/resultFFmpeg.txt", ios::out);
+    resultSend.open("./results/resultSend.txt", ios::out);
     // 1. AsecndCL init
     const char* aclConfigPath = "./src/acl.json";
     aclError ret = aclInit(aclConfigPath);
@@ -216,25 +216,25 @@ int main(int argc, char *argv[]){
     }
 
     // 初始化 dvpp venc
-    DvppVenc processVenc(stream);
+    // DvppVenc processVenc(stream);
     // 编码resize之后的数据
     // processVenc.Init(threadId, modelHeight, modelWidth);
     
     // 编码resize之前的数据
-    processVenc.Init(threadId, height, width);
+    // processVenc.Init(threadId, height, width);
     
     // 初始化，resize和model infer的接口
     // 测试视频编码
-    processVpcResize.RegisterHandler([&] (uint8_t* buffer){ 
+    // processVpcResize.RegisterHandler([&] (uint8_t* buffer){ 
 
-        processModel.Execute();
-        vector<DetectionResult> DetectResults = processModel.PostProcess();
-        // 视频编码resize之后的数据
-        // processVenc.SendVencFrame(DetectResults, processVpcResize.GetOutputBuffer());
+    //     processModel.Execute();
+    //     vector<DetectionResult> DetectResults = processModel.PostProcess();
+    //     // 视频编码resize之后的数据
+    //     // processVenc.SendVencFrame(DetectResults, processVpcResize.GetOutputBuffer());
         
-        // 视频编码resize之前的数据
-        processVenc.SendVencFrame(DetectResults, processVpcResize.GetInputBuffer());
-        });
+    //     // 视频编码resize之前的数据
+    //     processVenc.SendVencFrame(DetectResults, processVpcResize.GetInputBuffer());
+    //     });
 
     // // 初始化输出ffmpeg
     // FFMPEGOutput processOutput;
@@ -245,24 +245,24 @@ int main(int argc, char *argv[]){
     //     processOutput.SendRtmpFrame(buffer, size); });
     
 
-    // // 初始化dvpp jpege
-    // DvppJpegE processJpegE(stream);
-    // processJpegE.OpenPresenterChannelVideo();
-    // processVpcResize.RegisterHandler([&] (uint8_t* buffer){     
-    //     processJpegE.InitJpegEResource((uint8_t*)processVpcResize.GetInputBuffer(), width, height);
-    //     processModel.Execute();
+    // 初始化dvpp jpege
+    DvppJpegE processJpegE(stream);
+    processJpegE.OpenPresenterChannelVideo();
+    processVpcResize.RegisterHandler([&] (uint8_t* buffer){     
+        processJpegE.InitJpegEResource((uint8_t*)processVpcResize.GetInputBuffer(), width, height);
+        processModel.Execute();
 
-    //     // yolov3 post
-    //     // vector<DetectionResult> DetectResults = processModel.PostProcess(width, height); 
+        // yolov3 post
+        // vector<DetectionResult> DetectResults = processModel.PostProcess(width, height); 
         
-    //     // yolov4 post
-    //     vector<DetectionResult> DetectResults = processModel.PostProcess();
+        // yolov4 post
+        vector<DetectionResult> DetectResults = processModel.PostProcess();
 
        
-    //     processJpegE.Process(width, height, DetectResults);
+        processJpegE.Process(width, height, DetectResults);
 
-    //     processJpegE.DestroyEncodeResource();
-    //      });
+        processJpegE.DestroyEncodeResource();
+         });
        
     
 
@@ -273,7 +273,7 @@ int main(int argc, char *argv[]){
     processInput.Destroy();
     processVpcResize.Destroy();
     
-    processVenc.Destroy();
+    // processVenc.Destroy();
     // processOutput.Destroy(); 
 
 

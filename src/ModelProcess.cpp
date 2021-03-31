@@ -1,10 +1,10 @@
 /*
 * @Author: winston
 * @Date:   2021-01-07 20:58:09
-* @Last Modified by:   winston
-* @Last Modified time: 2021-03-29 22:28:55
+* @Last Modified by:   WinstonLy
+* @Last Modified time: 2021-03-31 22:37:14
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/atlas200dk_yolov4_test/src/ModelProcess.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/ModelProcess.cpp 
 */
 #include "ModelProcess.h"
 #include <iostream>
@@ -347,23 +347,23 @@ void ModelProcess::DestroyOutput(){
 Result ModelProcess::Execute(){
     clock_t beginTime = clock();
     // 异步接口
-	// aclError ret = aclmdlExecuteAsync(modelId, modelInput, modelOutput, stream);
- //    if (ret != ACL_ERROR_NONE) {
- //        ATLAS_LOG_ERROR("execute model failed, modelId is %u", modelId);
- //        return FAILED;
- //    }
- //    // 阻塞应用程序运行，直到指定stream中的所有任务完成
- //    ret = aclrtSynchronizeStream(stream);
- //    if(ret != ACL_ERROR_NONE){
- //        ATLAS_LOG_ERROR("synchronize stream failed, err code = %d", ret);
- //        return FAILED;
-    // }
-    // 同步接口
-    aclError ret = aclmdlExecute(modelId, modelInput, modelOutput);
+	aclError ret = aclmdlExecuteAsync(modelId, modelInput, modelOutput, stream);
     if (ret != ACL_ERROR_NONE) {
         ATLAS_LOG_ERROR("execute model failed, modelId is %u", modelId);
         return FAILED;
     }
+    // 阻塞应用程序运行，直到指定stream中的所有任务完成
+    ret = aclrtSynchronizeStream(stream);
+    if(ret != ACL_ERROR_NONE){
+        ATLAS_LOG_ERROR("synchronize stream failed, err code = %d", ret);
+        return FAILED;
+    }
+    // // 同步接口
+    // aclError ret = aclmdlExecute(modelId, modelInput, modelOutput);
+    // if (ret != ACL_ERROR_NONE) {
+    //     ATLAS_LOG_ERROR("execute model failed, modelId is %u", modelId);
+    //     return FAILED;
+    // }
     
     clock_t endTime = clock();
     resultInfer << "infer a frame time: " << (double)(endTime - beginTime)*1000/CLOCKS_PER_SEC << " ms" <<endl;
@@ -517,41 +517,41 @@ vector<DetectionResult> ModelProcess::PostProcess(){
 
     std::vector<ObjDetectInfo> objInfos;
     static int frameIndex = 0;
-    // aclError ret = GetObjectInfoTensorflow(Output, objInfos);
-    // if(ret != ACL_ERROR_NONE){
-    //     ATLAS_LOG_ERROR("Falied to get TensorFlow model output, ret = %d", ret);
-    //     // return ret;
-    // }
+    aclError ret = GetObjectInfoTensorflow(Output, objInfos);
+    if(ret != ACL_ERROR_NONE){
+        ATLAS_LOG_ERROR("Falied to get TensorFlow model output, ret = %d", ret);
+        // return ret;
+    }
     vector<DetectionResult> detectResults;
-    // for(int i = 0; i < objInfos.size(); i++){
-    //     DetectionResult oneResult;
-    //     Point point_lt, point_rb;
-    //     //get the confidence of the detected object. Anything less than 0.8 is considered invalid
-    //     uint32_t score = (uint32_t)(objInfos[i].confidence * 100);
-    //     if (score < 80) continue;
-    //     ATLAS_LOG_INFO("infer score %d", score);
-    //     //get the frame coordinates and converts them to the coordinates on the original frame
-    //     oneResult.lt.x = objInfos[i].leftTopX;
-    //     oneResult.lt.y = objInfos[i].leftTopY;
-    //     oneResult.rb.x = objInfos[i].rightBotX;
-    //     oneResult.rb.y = objInfos[i].rightBotY;
-    //     //Construct a string that marks the object: object name + confidence
-    //     uint32_t objIndex = (uint32_t)objInfos[i].classId;
-    //     oneResult.result_text = yolov4Label[objIndex] + std::to_string(score) + "\%";
-    //     ATLAS_LOG_INFO("%d %d %d %d %s\n", oneResult.lt.x, oneResult.lt.y,
-    //      oneResult.rb.x, oneResult.rb.y, oneResult.result_text.c_str());
+    for(int i = 0; i < objInfos.size(); i++){
+        DetectionResult oneResult;
+        Point point_lt, point_rb;
+        //get the confidence of the detected object. Anything less than 0.8 is considered invalid
+        uint32_t score = (uint32_t)(objInfos[i].confidence * 100);
+        if (score < 80) continue;
+        ATLAS_LOG_INFO("infer score %d", score);
+        //get the frame coordinates and converts them to the coordinates on the original frame
+        oneResult.lt.x = objInfos[i].leftTopX;
+        oneResult.lt.y = objInfos[i].leftTopY;
+        oneResult.rb.x = objInfos[i].rightBotX;
+        oneResult.rb.y = objInfos[i].rightBotY;
+        //Construct a string that marks the object: object name + confidence
+        uint32_t objIndex = (uint32_t)objInfos[i].classId;
+        oneResult.result_text = yolov4Label[objIndex] + std::to_string(score) + "\%";
+        ATLAS_LOG_INFO("%d %d %d %d %s\n", oneResult.lt.x, oneResult.lt.y,
+         oneResult.rb.x, oneResult.rb.y, oneResult.result_text.c_str());
         
 
-    //     detectResults.emplace_back(oneResult);
-    // }
+        .emplace_back(oneResult);
+    }
  
     
 
-    // 手动提取3个feature，用python文件解析
+    // // 手动提取3个feature，用python文件解析
     // static int imageNum = 0;
     // int tensorNum = 1;
     // for(int i = 0; i < outputDataBuffers.size(); ++i){
-    //     std::string fileNameSave = "./out/result/output" + std::to_string(imageNum) + "_" 
+    //     std::string fileNameSave = "./results/output" + std::to_string(imageNum) + "_" 
     //                                 + std::to_string(tensorNum ) + ".bin";
     //     FILE* output = fopen(fileNameSave.c_str(), "wb+");
         

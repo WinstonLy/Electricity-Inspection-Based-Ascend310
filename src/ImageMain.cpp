@@ -1,10 +1,10 @@
 /*
 * @Author: winston
 * @Date:   2021-03-10 15:41:25
-* @Last Modified by:   winston
-* @Last Modified time: 2021-03-18 10:28:40
+* @Last Modified by:   WinstonLy
+* @Last Modified time: 2021-03-31 19:42:58
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/atlas200dk_yolov4_test/src/RunJpegEDInfer.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/ImageMain.cpp 
 */
 #include <iostream>
 #include <fstream>
@@ -19,7 +19,7 @@
 #include "acl/ops/acl_dvpp.h"
 #include <atomic>
 #include <map>
-
+#include<Python.h>
 // #include <opencv2/highgui/highgui.hpp>
 // #include <opencv2/imgproc/imgproc.hpp> 
 // #include <opencv2/opencv.hpp>
@@ -55,7 +55,7 @@ namespace {
   int modelWidth = 608;
   int modelHeight = 608;
   const char* modelPath = "./model/yolov4.om";
-  const char* appConf = "../script/object_detection.conf";
+  const char* appConf = "./script/object_detection.conf";
 }
 
 
@@ -67,6 +67,24 @@ int main(int argc, char *argv[]){
     resultInfer.open("./data/resultInfer.txt");
     resultFFmpeg.open("./data/resultFFmpeg.txt");
     resultSend.open("./data/resultSend.txt");
+
+    // //初始化python
+    // Py_Initialize();
+ 
+    // //直接运行python代码
+    // PyRun_SimpleString("print 'Python Start'");
+ 
+    // //引入当前路径,否则下面模块不能正常导入
+    // PyRun_SimpleString("import sys");  
+    // PyRun_SimpleString("sys.path.append('./')");  
+    // //引入模块
+    // PyObject *pModule = PyImport_ImportModule("bin_to_predict_yolov4_pytorch");
+    // //获取模块字典属性
+    // PyObject *pDict = PyModule_GetDict(pModule);
+
+    // //直接获取模块中的函数
+    // PyObject *pFunc = PyObject_GetAttrString(pModule, "post_process");
+    
     // 1. AsecndCL init
     const char* aclConfigPath = "./src/acl.json";
     aclError ret = aclInit(aclConfigPath);

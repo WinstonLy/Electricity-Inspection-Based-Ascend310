@@ -1,10 +1,10 @@
 /*
 * @Author: winston
 * @Date:   2021-03-15 21:22:17
-* @Last Modified by:   winston
-* @Last Modified time: 2021-03-29 22:19:09
+* @Last Modified by:   WinstonLy
+* @Last Modified time: 2021-03-31 20:58:38
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/atlas200dk_yolov4_test/src/YoloPostProcess.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/YoloPostProcess.cpp 
 */
 
 #include "YoloPostProcess.h"
@@ -29,27 +29,37 @@ void InitNetInfo(NetInfo& netInfo,
     netInfo.anchorDim = ANCHOR_DIM;
     netInfo.bboxDim = BOX_DIM;
     netInfo.classNum = CLASS_NUM;
-    std:: cout << "anchorDim:" << netInfo.anchorDim << " bboxDim:" << netInfo.bboxDim 
-               << " classNum" << netInfo.classNum << std::endl;
+    // std:: cout << "anchorDim:" << netInfo.anchorDim << " bboxDim:" << netInfo.bboxDim 
+    //            << " classNum" << netInfo.classNum << std::endl;
     netInfo.netWidth = 608;
     netInfo.netHeight = 608;
     const int featLayerNum = YOLO_TYPE;
-    std::cout << "featLayerNum = " << featLayerNum << std::endl;
+    // std::cout << "featLayerNum = " << featLayerNum << std::endl;
     const int minusOne = 1;
     const int biasesDim = 2;
     // yolov4 76*76 38*38 19*19,与yolov3的输出是相反的
     for (int i = 0; i < featLayerNum; ++i) {
         const int scale = 8 << i;    //yolov4
         // const int scale = 32 >> i; // yolov3
+        std::cout << "===============feature map stride: " << netWidth / scale << std::endl;
+        std::cout << "===============anchors :";
+        int stride = netWidth / scale;
         OutputLayer outputLayer = {i, netWidth / scale, netHeight / scale, };
-        int startIdx = (featLayerNum - minusOne - i) * netInfo.anchorDim * biasesDim;
+        int startIdx = i * netInfo.anchorDim * biasesDim;
         int endIdx = startIdx + netInfo.anchorDim * biasesDim;
         int idx = 0;
         for (int j = startIdx; j < endIdx; ++j) {
             outputLayer.anchors[idx++] = BIASES[j];
+            
         }
+        std::cout << std::endl;
+        for(int m = 0; m < 6; ++m){
+            std::cout << outputLayer.anchors[m] << " ";
+        }
+        std::cout << std::endl;
         netInfo.outputLayers.push_back(outputLayer);
     }
+
     // std::cout << "init net info success" << std::endl;
 }
 
@@ -136,10 +146,12 @@ void CorrectBbox(std::vector<DetectBox>& detBoxes, int netWidth, int netHeight, 
         newWidth = (imWidth * netHeight) / imHeight;
     }
     for (auto& item : detBoxes) {
-        item.x = (item.x * netWidth - (netWidth - newWidth) / 2.f) / newWidth;
-        item.y = (item.y * netHeight - (netHeight - newHeight) / 2.f) / newHeight;
-        item.width *= static_cast<float>(netWidth) / newWidth;
-        item.height *= static_cast<float>(netHeight) / newHeight;
+        // item.x = (item.x * netWidth - (netWidth - newWidth) / 2.f) / newWidth;
+        // item.y = (item.y * netHeight - (netHeight - newHeight) / 2.f) / newHeight;
+        // item.width *= static_cast<float>(netWidth) / newWidth;
+        // item.height *= static_cast<float>(netHeight) / newHeight;
+        item.x *= imWidth;
+        item.y *= imHeight;
     }
     // std::cout << "correct box success" << std::endl;
 }
@@ -175,40 +187,49 @@ void SelectClassNHWC(std::shared_ptr<void> netout, NetInfo info, std::vector<Det
     const int offsetObjectness = 1;
     fastmath::fastMath.Init();
     std::cout << "fast math init success" << std::endl;
+    int flag = 1;
     for (int j = 0; j < stride; j++) {
         for (int k = 0; k < info.anchorDim; k++) {
-            int bIdx = (info.bboxDim + 1 + info.classNum) * stride * k + j; // begin index
-            int oIdx = bIdx + info.bboxDim * stride; // objectness index
+            int bIdx = k * stride * (info.bboxDim + 1 + info.classNum)
+                + j;  // begin index
+            int oIdx = bIdx + info.bboxDim*stride; // objectness index
             // check obj
             float objectness = fastmath::Sigmoid(static_cast<float *>(netout.get())[oIdx]);
             
             // std::cout << "net out get " << std::endl;
 
-            if (objectness <= OBJECTNESS_THRESH) {
-                continue;
-            }
+            // if (objectness <= OBJECTNESS_THRESH) {
+            //     continue;
+            // }
             int classID = -1;
             float maxProb = SCORE_THRESH;
             float classProb;
             // Compare the confidence of the 3 anchors, select the largest one
             for (int c = 0; c < info.classNum; c++) {
                 classProb = fastmath::Sigmoid(static_cast<float *>(netout.get())[bIdx +
-                            (info.bboxDim + offsetObjectness + c)]) * stride * objectness;
+                            (info.bboxDim + offsetObjectness + c)* stride]);
                 CompareProb(classID, maxProb, classProb, c);
             }
+
             if (classID >= 0) {
                 DetectBox det = {};
                 int row = j / layer.width;
                 int col = j % layer.width;
                 det.x = (col + fastmath::Sigmoid(static_cast<float *>(netout.get())[bIdx])) / layer.width;
-                det.y = (row + fastmath::Sigmoid(static_cast<float *>(netout.get())[bIdx + stride])) / layer.height;
-                det.width = fastmath::Exp(static_cast<float *>(netout.get())[bIdx + 2*stride]) *
-                            layer.anchors[biasesDim * k]; // / info.netWidth;
-                det.height = fastmath::Exp(static_cast<float *>(netout.get())[bIdx + 3*stride]) *
-                             layer.anchors[biasesDim * k + offsetBiases]; // / info.netHeight;
+                det.y = (row + fastmath::Sigmoid(static_cast<float *>(netout.get())[bIdx + offsetY * stride])) / layer.height;
+                det.width = fastmath::Exp(static_cast<float *>(netout.get())[bIdx + offsetWidth * stride]) *
+                            layer.anchors[biasesDim * k] / info.netWidth;
+                det.height = fastmath::Exp(static_cast<float *>(netout.get())[bIdx + offsetHeight * stride]) *
+                             layer.anchors[biasesDim * k + offsetBiases]/ info.netHeight;
                 det.classID = classID;
-                det.prob = maxProb;
+                det.prob = maxProb * objectness;
                 detBoxes.emplace_back(det);
+            }
+            if(stride == 361 && flag <= 50){
+
+                std::cout << "x: " << static_cast<float *>(netout.get())[bIdx] << "y: " << static_cast<float *>(netout.get())[bIdx + offsetY] << std::endl;
+                // flag = 0;
+                flag++;
             }
         }
     }
@@ -286,7 +307,7 @@ void Yolov3DetectionOutput(std::vector<std::shared_ptr<void>> featLayerData,
     }
     std::vector<DetectBox> detBoxes;
     GenerateBbox(featLayerData, netInfo, detBoxes);
-    CorrectBbox(detBoxes, 608, 608, 2688, 1520);
+    // CorrectBbox(detBoxes, 608, 608, 1920, 1080);
     NmsSort(detBoxes);
-    GetObjInfos(detBoxes, objInfos, 2688, 1520);
+    GetObjInfos(detBoxes, objInfos, 1920, 1080);
 }

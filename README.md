@@ -204,7 +204,7 @@
 
         Ascend310目前版本并不支持YOLO v4的后处理代码，因此采用C++代码自己实现后处理代码，C++代码参考YOLO v3后处理C++代码和YOLO v4后处理Python代码进行编写测试。
 
-    2. 出现opencv和ffmpeg动态链接库找不到
+    2. [出现opencv和ffmpeg动态链接库找不到:face_with_thermometer:](###openv和ffmpeg动态链接库找不到解决办法)
 
 ### 后处理代码开发问题
 
@@ -226,9 +226,11 @@
 
 ### openv和ffmpeg动态链接库找不到解决办法
 
-- 首先确定是否将Alas200Dk上的相关目录拷贝到服务器上，主要有`/usr/lib/aarch64-linux-gnu`和`/home/HwHiAiUser/ascend_ddk/arm`，`/usr/lib64/`三个目录
+1. 首先确定是否将Alas200Dk上的相关目录拷贝到服务器上，主要有`/usr/lib/aarch64-linux-gnu`和`/home/HwHiAiUser/ascend_ddk/arm`，`/usr/lib64/`三个目录
 
-- 然后将这些动态链接库添加到相应的路径
+2. 利用`sudo find / -name libopencv_...`类似的命令查找位置，将对应路径按照下面所示的步骤添加到环境变量中
+
+3. 然后将这些动态链接库添加到相应的路径
 
     ```sh
     1 修改LD_LIBRARY_PATH，命令如下：
@@ -256,4 +258,35 @@
     	cmake ../src -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DCMAKE_SKIP_RPATH=TRUE
     ```
 
-      
+- 使用ldconfig的出现以下问题：
+
+    ```sh
+    /sbin/ldconfig.real:/home/winston/ascend_ddk/lib/libprotobuf.so.19 is not a symbolic link
+    ```
+
+    解决办法如下：
+
+    - 首先检查链接：`sudo ldconfig -v`
+
+    - 然后找到错误的链接信息
+
+        ```sh
+        # /sbin/ldconfig.real
+        /sbin/ldconfig.real:/home/winston/ascend_ddk/lib/libprotobuf.so.19 is not a symbolic link
+        ```
+
+    - 根据错误信息查看该文件软链接到哪个文件
+
+        ```sh
+        ls -lh /home/winston/ascend_ddk/arm/lib/libprotobuf.so.19
+        lrwxrwxrwx 1 root root 21 Mar  5 15:45 /home/winston/ascend_ddk/arm/lib/libprotobuf.so.19 -> libprotobuf.so.19.0.0
+        发现应该链接到一个文件
+        ```
+
+    - 建立软链接
+
+        ```sh
+        sudo ln -sf /home/winston/ascend_ddk/arm/lib/libprotobuf.so.19.0.0 /home/winston/ascend_ddk/arm/lib/libprotobuf.so.19
+        ```
+
+        

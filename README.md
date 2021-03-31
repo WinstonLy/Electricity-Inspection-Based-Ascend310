@@ -2,8 +2,7 @@
 
 ​		借助于Ascend310 AI处理器完成深度学习算法部署任务，应用背景为变电站电力巡检，基于YOLO v4算法模型对常见电力巡检目标进行检测，并充分利用Ascend310提供的DVPP等硬件支持能力来完成流媒体的传输、处理等任务，并对系统性能做出一定的优化。
 
-
-# 网络模型的部署
+## 1 网络模型的部署
 
 ​        目前只在Atlas200DK上完成开源YOLO v4网络的部署，由于YOLO含有mish算子，该算子在Atlas200DK现有的版本支持度高，仅在ONNX框架下支持，因此需要将Pytorch下的YOLO v4转换成ONNX，再转换为OM文件。
 
@@ -198,3 +197,63 @@
         >```
 
         
+
+- 开发过程中出现的一些问题记录如下：
+
+    1. [后处理代码开发问题](###后处理代码开发问题):face_with_thermometer:
+
+        Ascend310目前版本并不支持YOLO v4的后处理代码，因此采用C++代码自己实现后处理代码，C++代码参考YOLO v3后处理C++代码和YOLO v4后处理Python代码进行编写测试。
+
+    2. 出现opencv和ffmpeg动态链接库找不到
+
+### 后处理代码开发问题
+
+针对于YOLOv4的后处理代码，参考[华为Model zoo的ATC YOLO v4项目](https://ascend.huawei.com/zh/#/software/modelzoo/detail/1/abb7e641964c459398173248aa5353bc)进行测试。
+
+该项目中提供了YOLO v4的后处理脚本（`bin_to_predict_yolov4_pytorch.py`)。由于模型转换的过程中去除了YOLO v4的后处理代码，因此在程序运行的过程中看不到相应的处理结果，为完成YOLO v4的后处理模块，采用以下步骤：
+
+1. 首先采用的方案是利用yolo v3的后处理代码来进行替换，但是进行处理的结果发现不正确，初步定为解算不正确
+
+2. 将模型推理的结果（在创建的模型输出的时候将三个`feature map`存放到一个vector数组中）保存到一个二进制文件中（`.bin`文件），将其拷贝到`ATC YOLO v4`的文件夹中利用python文件进行后处理，得到的输出结果正确，确定模型转换过程正确，推理结果正确，出错的环节是后处理（解算+NMS）。
+
+3. 对比C++后处理代码和Python后处理代码，发现代码整体思路一致，唯一有问题的是进行解算的时候不知道输出的数据排布格式是什么样的。
+
+4. 利用Pycharm工具调试来debug，发现排布格式为NCWH，如下图所示:shape为1x255x76x76，其中1为batch数，255则为3x85，表示每个cell预测3个bbox，85为4个坐标+1个置信度+80分类概率，后两个为特征图大小，其他两个特征图对应为38x38，19x19。以76x76的为例，特和曾图大小为76x76，通道数为255，依次分别是{x，y，w，h，iou，class1_iou, ......, class80_iou}。因此模型输出文件保存为二进制格式的存放方式为现存放x，再存放y，依次存放，最后存放80类的分类iou。这一点是在后处理解算过程中需要注意的点。
+
+    <img src="./image/feature_map.jpg" style="zoom:55%;" />                                                                   <img src="./image/feature_map_c.jpg" style="zoom:45%;" />
+
+
+
+### openv和ffmpeg动态链接库找不到解决办法
+
+- 首先确定是否将Alas200Dk上的相关目录拷贝到服务器上，主要有`/usr/lib/aarch64-linux-gnu`和`/home/HwHiAiUser/ascend_ddk/arm`，`/usr/lib64/`三个目录
+
+- 然后将这些动态链接库添加到相应的路径
+
+    ```sh
+    1 修改LD_LIBRARY_PATH，命令如下：
+    
+    	vi ~/.bashrc 
+    
+       在最后一行加入export LD_LIBRARY_PATH=/usr/lib64:/home/winston/Ascend/acllib/lib64:/home/winston/ascend_ddk/arm/lib:$LD_LIBRARY_PATH
+    
+    	source ~/.bashrc
+    
+       	sudo ldconfig
+    
+    2 修改/etc/ld.so.conf，命令如下：
+    
+       vim /etc/ld.so.conf.d/atlas.so.conf
+    
+       将动态链接库的路径添加在这个文件的最后。
+       /usr/lib64
+       /home/winston/Ascend/acllib/lib64
+       /home/winston/ascend_ddk/arm/lib
+    
+       sudo ldconfig
+       
+    在开发环境编译的时候需要指定cmake编译器，涉及到交叉编译工具
+    	cmake ../src -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DCMAKE_SKIP_RPATH=TRUE
+    ```
+
+      

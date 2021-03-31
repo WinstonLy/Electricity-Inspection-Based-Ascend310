@@ -34,27 +34,30 @@ def yolo_forward_dynamic(output, num_classes, anchors, num_anchors, scale_x_y):
         bwh_list.append(output[:, begin + 2: begin + 4])
         det_confs_list.append(output[:, begin + 4: begin + 5])
         cls_confs_list.append(output[:, begin + 5: end])
-
+   
     # Shape: [batch, num_anchors * 2, H, W]
     bxy = torch.cat(bxy_list, dim=1)
+
     # Shape: [batch, num_anchors * 2, H, W]
     bwh = torch.cat(bwh_list, dim=1)
 
     # Shape: [batch, num_anchors, H, W]
     det_confs = torch.cat(det_confs_list, dim=1)
     # Shape: [batch, num_anchors * H * W]
+    # print(output.size(0),num_anchors * output.size(2) * output.size(3))
     det_confs = det_confs.view(output.size(0), num_anchors * output.size(2) * output.size(3))
 
     # Shape: [batch, num_anchors * num_classes, H, W]
     cls_confs = torch.cat(cls_confs_list, dim=1)
     # Shape: [batch, num_anchors, num_classes, H * W]
+    print(num_anchors, output.size(0), output.size(2), output.size(3)) 
     cls_confs = cls_confs.view(output.size(0), num_anchors, num_classes, output.size(2) * output.size(3))
     # Shape: [batch, num_anchors, num_classes, H * W] --> [batch, num_anchors * H * W, num_classes]
     cls_confs = cls_confs.permute(0, 1, 3, 2).reshape(output.size(0), num_anchors * output.size(2) * output.size(3),
                                                       num_classes)
 
     # Apply sigmoid(), exp() and softmax() to slices
-    #
+    print(bxy)
     bxy = torch.sigmoid(bxy) * scale_x_y - 0.5 * (scale_x_y - 1)
     bwh = torch.exp(bwh)
     det_confs = torch.sigmoid(det_confs)
@@ -182,10 +185,11 @@ class YoloLayer(object):
 
     def forward(self, output):
         masked_anchors = []
+
         for m in self.anchor_mask:
             masked_anchors += self.anchors[m * self.anchor_step:(m + 1) * self.anchor_step]
         masked_anchors = [anchor / self.stride for anchor in masked_anchors]
-
+        print(masked_anchors)
         return yolo_forward_dynamic(output, self.num_classes, masked_anchors,
                                     len(self.anchor_mask), scale_x_y=self.scale_x_y)
 
@@ -337,7 +341,7 @@ def post_process(flags):
         feature_map_1 = np.fromfile(path_base + "_" + '1' + ".bin", dtype="float32").reshape(yolo_shape[0])
         feature_map_2 = np.fromfile(path_base + "_" + '2' + ".bin", dtype="float32").reshape(yolo_shape[1])
         feature_map_3 = np.fromfile(path_base + "_" + '3' + ".bin", dtype="float32").reshape(yolo_shape[2])
-
+    
         pred_1 = yolo1.forward(torch.from_numpy(feature_map_1))
         pred_2 = yolo2.forward(torch.from_numpy(feature_map_2))
         pred_3 = yolo3.forward(torch.from_numpy(feature_map_3))

@@ -253,11 +253,11 @@ int main(int argc, char *argv[]){
         processModel.Execute();
 
         // yolov3 post
-        // vector<DetectionResult> DetectResults = processModel.PostProcess(width, height); 
+        // vector<DetectionResult> DetectResults = processModel.PostProcessYolov3(width, height); 
         
         // yolov4 post
-        vector<DetectionResult> DetectResults = processModel.PostProcess();
-
+       
+        vector<DetectionResult> DetectResults = processModel.PostProcessYolov4(width, height);
        
         processJpegE.Process(width, height, DetectResults);
 

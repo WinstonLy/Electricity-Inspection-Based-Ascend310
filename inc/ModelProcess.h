@@ -47,12 +47,13 @@ public:
     void RegisterHandler(std::function<void(uint8_t*, int)> handler);
 
 
-    vector<DetectionResult> PostProcess();
+    vector<DetectionResult> PostProcessYolov4(int frameWidth, int frameHeight);
     aclError WriteResult(const std::vector<ObjDetectInfo> &objInfos, int frameIndex) const;
-    aclError GetObjectInfoTensorflow(std::vector<RawData> &modelOutput, std::vector<ObjDetectInfo> &objInfos);
+    aclError GetObjectInfoYolo(std::vector<RawData> &modelOutput, std::vector<ObjDetectInfo> &objInfos,
+    						   int frameWidth, int frameHeight);
 
 
-    vector<DetectionResult> PostProcess(int frameWidth, int frameHeight);
+    vector<DetectionResult> PostProcessYolov3(int frameWidth, int frameHeight);
     void* GetInferenceOutputItem(uint32_t& itemDataSize,
                                   aclmdlDataset* inferenceOutput, uint32_t idx);
 private:

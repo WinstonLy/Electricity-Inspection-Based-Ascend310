@@ -2,7 +2,7 @@
 * @Author: winston
 * @Date:   2021-03-10 15:41:25
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-03-31 19:42:58
+* @Last Modified time: 2021-04-01 09:44:40
 * @Description: 
 * @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/ImageMain.cpp 
 */
@@ -243,7 +243,7 @@ int main(int argc, char *argv[]){
         processJpegE.InitJpegEResource((uint8_t*)processVpcResize.GetOutputBuffer(),
                                      modelWidth, modelHeight);                               
         processModel.Execute();
-        vector<DetectionResult> DetectResults = processModel.PostProcess(); 
+        vector<DetectionResult> DetectResults = processModel.PostProcessYolov4(testPic[index].width, testPic[index].height); 
 
         processJpegE.Process(testPic[index].width, testPic[index].height, DetectResults);
         

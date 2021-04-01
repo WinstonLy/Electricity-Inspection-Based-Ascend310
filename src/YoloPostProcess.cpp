@@ -2,7 +2,7 @@
 * @Author: winston
 * @Date:   2021-03-15 21:22:17
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-03-31 20:58:38
+* @Last Modified time: 2021-04-01 09:50:45
 * @Description: 
 * @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/YoloPostProcess.cpp 
 */
@@ -41,8 +41,10 @@ void InitNetInfo(NetInfo& netInfo,
     for (int i = 0; i < featLayerNum; ++i) {
         const int scale = 8 << i;    //yolov4
         // const int scale = 32 >> i; // yolov3
-        std::cout << "===============feature map stride: " << netWidth / scale << std::endl;
-        std::cout << "===============anchors :";
+        // std::cout << "===============feature map stride: " << netWidth / scale << std::endl;
+        // std::cout << "===============anchors :";
+        
+        // 模型推理输出排布格式：x,y,w,h,iou,class_iou1...class_iou80；也就是先存x，存完之后存y，依次类推
         int stride = netWidth / scale;
         OutputLayer outputLayer = {i, netWidth / scale, netHeight / scale, };
         int startIdx = i * netInfo.anchorDim * biasesDim;
@@ -52,10 +54,10 @@ void InitNetInfo(NetInfo& netInfo,
             outputLayer.anchors[idx++] = BIASES[j];
             
         }
-        std::cout << std::endl;
-        for(int m = 0; m < 6; ++m){
-            std::cout << outputLayer.anchors[m] << " ";
-        }
+        // std::cout << std::endl;
+        // for(int m = 0; m < 6; ++m){
+        //     std::cout << outputLayer.anchors[m] << " ";
+        // }
         std::cout << std::endl;
         netInfo.outputLayers.push_back(outputLayer);
     }
@@ -146,12 +148,11 @@ void CorrectBbox(std::vector<DetectBox>& detBoxes, int netWidth, int netHeight, 
         newWidth = (imWidth * netHeight) / imHeight;
     }
     for (auto& item : detBoxes) {
-        // item.x = (item.x * netWidth - (netWidth - newWidth) / 2.f) / newWidth;
-        // item.y = (item.y * netHeight - (netHeight - newHeight) / 2.f) / newHeight;
-        // item.width *= static_cast<float>(netWidth) / newWidth;
-        // item.height *= static_cast<float>(netHeight) / newHeight;
-        item.x *= imWidth;
-        item.y *= imHeight;
+        item.x = (item.x * netWidth - (netWidth - newWidth) / 2.f) / newWidth;
+        item.y = (item.y * netHeight - (netHeight - newHeight) / 2.f) / newHeight;
+        item.width *= static_cast<float>(netWidth) / newWidth;
+        item.height *= static_cast<float>(netHeight) / newHeight;
+       
     }
     // std::cout << "correct box success" << std::endl;
 }
@@ -186,7 +187,7 @@ void SelectClassNHWC(std::shared_ptr<void> netout, NetInfo info, std::vector<Det
     const int offsetBiases = 1;
     const int offsetObjectness = 1;
     fastmath::fastMath.Init();
-    std::cout << "fast math init success" << std::endl;
+    // std::cout << "fast math init success" << std::endl;
     int flag = 1;
     for (int j = 0; j < stride; j++) {
         for (int k = 0; k < info.anchorDim; k++) {
@@ -198,9 +199,9 @@ void SelectClassNHWC(std::shared_ptr<void> netout, NetInfo info, std::vector<Det
             
             // std::cout << "net out get " << std::endl;
 
-            // if (objectness <= OBJECTNESS_THRESH) {
-            //     continue;
-            // }
+            if (objectness <= OBJECTNESS_THRESH) {
+                continue;
+            }
             int classID = -1;
             float maxProb = SCORE_THRESH;
             float classProb;
@@ -225,12 +226,12 @@ void SelectClassNHWC(std::shared_ptr<void> netout, NetInfo info, std::vector<Det
                 det.prob = maxProb * objectness;
                 detBoxes.emplace_back(det);
             }
-            if(stride == 361 && flag <= 50){
+            // if(stride == 361 && flag <= 50){
 
-                std::cout << "x: " << static_cast<float *>(netout.get())[bIdx] << "y: " << static_cast<float *>(netout.get())[bIdx + offsetY] << std::endl;
-                // flag = 0;
-                flag++;
-            }
+            //     std::cout << "x: " << static_cast<float *>(netout.get())[bIdx] << "y: " << static_cast<float *>(netout.get())[bIdx + offsetY] << std::endl;
+            //     // flag = 0;
+            //     flag++;
+            // }
         }
     }
 
@@ -250,12 +251,12 @@ void GenerateBbox(std::vector<std::shared_ptr<void>> featLayerData, NetInfo info
     // std::cut << "featLayerData size :"  << featLayerData.size() << std::endl;
     for (const auto& layer : info.outputLayers) {
         int stride = layer.width * layer.height; // 76*76 38*38 19*19
-        std::cout << "stride : " << stride << std::endl;
+        // std::cout << "stride : " << stride << std::endl;
         std::shared_ptr<void> netout = featLayerData[layer.layerIdx];
         SelectClassNHWC(netout, info, detBoxes, stride, layer);
     }
 
-    std::cout << "generater box success" << std::endl;
+    // std::cout << "generater box success" << std::endl;
 }
 
 /*
@@ -303,11 +304,15 @@ void Yolov3DetectionOutput(std::vector<std::shared_ptr<void>> featLayerData,
 {
     static NetInfo netInfo;
     if (netInfo.outputLayers.empty()) {
-        InitNetInfo(netInfo, 608, 608);
+        InitNetInfo(netInfo, imgInfo.modelWidth, imgInfo.modelHeight);
     }
     std::vector<DetectBox> detBoxes;
+
     GenerateBbox(featLayerData, netInfo, detBoxes);
-    // CorrectBbox(detBoxes, 608, 608, 1920, 1080);
+    
+    CorrectBbox(detBoxes, imgInfo.modelWidth, imgInfo.modelHeight, imgInfo.imgWidth, imgInfo.imgHeight);
+    
     NmsSort(detBoxes);
-    GetObjInfos(detBoxes, objInfos, 1920, 1080);
+
+    GetObjInfos(detBoxes, objInfos, imgInfo.imgWidth, imgInfo.imgHeight);
 }

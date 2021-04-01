@@ -199,11 +199,11 @@
 
 - 开发过程中出现的一些问题记录如下：
 
-    1. [后处理代码开发问题](###后处理代码开发问题):face_with_thermometer:
+    1. [后处理代码开发问题](###后处理代码开发问题):happy:
 
         Ascend310目前版本并不支持YOLO v4的后处理代码，因此采用C++代码自己实现后处理代码，C++代码参考YOLO v3后处理C++代码和YOLO v4后处理Python代码进行编写测试。
 
-    2. [出现opencv和ffmpeg动态链接库找不到:face_with_thermometer:](###openv和ffmpeg动态链接库找不到解决办法)
+    2. [出现opencv和ffmpeg动态链接库找不到](###openv和ffmpeg动态链接库找不到解决办法):happy:
 
 ### 后处理代码开发问题
 
@@ -238,25 +238,18 @@
 
     ```sh
     1 修改LD_LIBRARY_PATH，命令如下：
-    
-    	vi ~/.bashrc 
-    
-       在最后一行加入export LD_LIBRARY_PATH=/usr/lib64:/home/winston/Ascend/acllib/lib64:/home/winston/ascend_ddk/arm/lib:$LD_LIBRARY_PATH
-    
+    vi ~/.bashrc 
+    在最后一行加入export LD_LIBRARY_PATH=/usr/lib64:/home/winston/Ascend/acllib/lib64:/home/winston/ascend_ddk/arm/lib:$LD_LIBRARY_PATH
     	source ~/.bashrc
-    
-       	sudo ldconfig
-    
+    	sudo ldconfig
+    	
     2 修改/etc/ld.so.conf，命令如下：
-    
-       vim /etc/ld.so.conf.d/atlas.so.conf
-    
-       将动态链接库的路径添加在这个文件的最后。
-       /usr/lib64
-       /home/winston/Ascend/acllib/lib64
-       /home/winston/ascend_ddk/arm/lib
-    
-       sudo ldconfig
+    	vim /etc/ld.so.conf.d/atlas.so.conf
+    	将动态链接库的路径添加在这个文件的最后。
+    	/usr/lib64
+    	/home/winston/Ascend/acllib/lib64
+    	/home/winston/ascend_ddk/arm/lib
+    	sudo ldconfig
        
     在开发环境编译的时候需要指定cmake编译器，涉及到交叉编译工具
     	cmake ../src -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++ -DCMAKE_SKIP_RPATH=TRUE

@@ -2,7 +2,7 @@
 * @Author: winston
 * @Date:   2021-01-07 20:58:09
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-03-31 22:37:14
+* @Last Modified time: 2021-04-01 09:55:40
 * @Description: 
 * @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/ModelProcess.cpp 
 */
@@ -368,7 +368,7 @@ Result ModelProcess::Execute(){
     clock_t endTime = clock();
     resultInfer << "infer a frame time: " << (double)(endTime - beginTime)*1000/CLOCKS_PER_SEC << " ms" <<endl;
 
-    ATLAS_LOG_INFO("model execute success");
+    // ATLAS_LOG_INFO("model execute success");
     return SUCCESS;
 }
 
@@ -436,7 +436,7 @@ void* ModelProcess::GetInferenceOutputItem(uint32_t& itemDataSize,
 }
 
 // Yolov3修改之后的模型，加入3个yolo和一个yolodetecouput算子，不需要后处理
-vector<DetectionResult> ModelProcess::PostProcess(int frameWidth, 
+vector<DetectionResult> ModelProcess::PostProcessYolov3(int frameWidth, 
                                   int frameHeight){
     //Get box information data
     uint32_t dataSize = 0;
@@ -497,99 +497,6 @@ vector<DetectionResult> ModelProcess::PostProcess(int frameWidth,
 }
 
 
-vector<DetectionResult> ModelProcess::PostProcess(){
-    std::vector<RawData> Output;
-    // std::vector<void*> inferOutputBuffers = GetOutputDataBuffers();
-    // std::vector<size_t> inferOutputSizes = GetOutputBufferSizes();
-    int size = outputDataBuffers.size();
-    for(int i = 0; i < size; ++i){
-        RawData rawData = RawData();
-        rawData.data.reset(outputDataBuffers[i], [](void*) {});
-        rawData.lenOfByte = outputDataBufferSizes[i];
-        Output.push_back(std::move(rawData));
-    }
-
-    size_t outputLength = Output.size();
-    if(outputLength <= 0){
-        ATLAS_LOG_ERROR("Failed to get model infer output data");
-        // return ACL_ERROR_MEMORY_ADDRESS_UNALIGNED;
-    }
-
-    std::vector<ObjDetectInfo> objInfos;
-    static int frameIndex = 0;
-    aclError ret = GetObjectInfoTensorflow(Output, objInfos);
-    if(ret != ACL_ERROR_NONE){
-        ATLAS_LOG_ERROR("Falied to get TensorFlow model output, ret = %d", ret);
-        // return ret;
-    }
-    vector<DetectionResult> detectResults;
-    for(int i = 0; i < objInfos.size(); i++){
-        DetectionResult oneResult;
-        Point point_lt, point_rb;
-        //get the confidence of the detected object. Anything less than 0.8 is considered invalid
-        uint32_t score = (uint32_t)(objInfos[i].confidence * 100);
-        if (score < 80) continue;
-        ATLAS_LOG_INFO("infer score %d", score);
-        //get the frame coordinates and converts them to the coordinates on the original frame
-        oneResult.lt.x = objInfos[i].leftTopX;
-        oneResult.lt.y = objInfos[i].leftTopY;
-        oneResult.rb.x = objInfos[i].rightBotX;
-        oneResult.rb.y = objInfos[i].rightBotY;
-        //Construct a string that marks the object: object name + confidence
-        uint32_t objIndex = (uint32_t)objInfos[i].classId;
-        oneResult.result_text = yolov4Label[objIndex] + std::to_string(score) + "\%";
-        ATLAS_LOG_INFO("%d %d %d %d %s\n", oneResult.lt.x, oneResult.lt.y,
-         oneResult.rb.x, oneResult.rb.y, oneResult.result_text.c_str());
-        
-
-        .emplace_back(oneResult);
-    }
- 
-    
-
-    // // 手动提取3个feature，用python文件解析
-    // static int imageNum = 0;
-    // int tensorNum = 1;
-    // for(int i = 0; i < outputDataBuffers.size(); ++i){
-    //     std::string fileNameSave = "./results/output" + std::to_string(imageNum) + "_" 
-    //                                 + std::to_string(tensorNum ) + ".bin";
-    //     FILE* output = fopen(fileNameSave.c_str(), "wb+");
-        
-    //     void* data = outputDataBuffers[i];
-    //     int sizeData = outputDataBufferSizes[i];
-    //     size_t num = fwrite(data, 1, sizeData, output);
-    //     std::cout << "write sizeData 0 : " << num << std::endl;
-        
-        
-        
-    //     fclose(output);
-
-    //     if(tensorNum == 3){
-    //         break;
-    //     }
-    //     ++tensorNum;
-
-    // }
-    // ++imageNum;
-   
-
-   
-
-
-
-    
-
-    return detectResults;
-    // ret = WriteResult(objInfos, frameIndex);
-    // if(ret != ACL_ERROR_NONE){
-    //     ATLAS_LOG_ERROR("Failed to wrtie result, ret = %d", ret);
-    //     return ret;
-    // }
-    // ++frameIndex;
-
-    // return ACL_ERROR_NONE;
-
-}
 
 aclError ModelProcess::WriteResult(const std::vector<ObjDetectInfo> &objInfos, int frameIndex)
     const
@@ -654,7 +561,8 @@ aclError ModelProcess::WriteResult(const std::vector<ObjDetectInfo> &objInfos, i
 }
 
 
-aclError ModelProcess::GetObjectInfoTensorflow(std::vector<RawData> &modelOutput, std::vector<ObjDetectInfo> &objInfos)
+aclError ModelProcess::GetObjectInfoYolo(std::vector<RawData> &modelOutput, std::vector<ObjDetectInfo> &objInfos,
+                                        int frameWidth, int frameHeight)
 {
     std::vector<std::shared_ptr<void>> hostPtr;
     
@@ -670,12 +578,111 @@ aclError ModelProcess::GetObjectInfoTensorflow(std::vector<RawData> &modelOutput
         hostPtr.push_back(hostPtrBufferManager);
     }
 
-    YoloImageInfo yoloImageInfo = {};
+    YoloImageInfo yoloImageInfo  = {};
+    yoloImageInfo.imgWidth       = frameWidth;
+    yoloImageInfo.imgHeight      = frameHeight;
+    yoloImageInfo.modelWidth     = modelWidth;
+    yoloImageInfo.modelHeight    = modelHeight;
     Yolov3DetectionOutput(hostPtr, objInfos, yoloImageInfo);
     return ACL_ERROR_NONE;
 }
 
 
 
+
+
+vector<DetectionResult> ModelProcess::PostProcessYolov4(int frameWidth, int frameHeight){
+    std::vector<RawData> Output;
+    // std::vector<void*> inferOutputBuffers = GetOutputDataBuffers();
+    // std::vector<size_t> inferOutputSizes = GetOutputBufferSizes();
+    int size = outputDataBuffers.size();
+    for(int i = 0; i < size; ++i){
+        RawData rawData = RawData();
+        rawData.data.reset(outputDataBuffers[i], [](void*) {});
+        rawData.lenOfByte = outputDataBufferSizes[i];
+        Output.push_back(std::move(rawData));
+    }
+
+    size_t outputLength = Output.size();
+    if(outputLength <= 0){
+        ATLAS_LOG_ERROR("Failed to get model infer output data");
+        // return ACL_ERROR_MEMORY_ADDRESS_UNALIGNED;
+    }
+
+    std::vector<ObjDetectInfo> objInfos;
+    static int frameIndex = 0;
+    aclError ret = GetObjectInfoYolo(Output, objInfos, frameWidth, frameHeight);
+    if(ret != ACL_ERROR_NONE){
+        ATLAS_LOG_ERROR("Falied to get TensorFlow model output, ret = %d", ret);
+        // return ret;
+    }
+    vector<DetectionResult> detectResults;
+    for(int i = 0; i < objInfos.size(); i++){
+        DetectionResult oneResult;
+        Point point_lt, point_rb;
+        //get the confidence of the detected object. Anything less than 0.8 is considered invalid
+        uint32_t score = (uint32_t)(objInfos[i].confidence * 100);
+        if (score < 80) continue;
+        ATLAS_LOG_INFO("infer score %d", score);
+        //get the frame coordinates and converts them to the coordinates on the original frame
+        oneResult.lt.x = objInfos[i].leftTopX;
+        oneResult.lt.y = objInfos[i].leftTopY;
+        oneResult.rb.x = objInfos[i].rightBotX;
+        oneResult.rb.y = objInfos[i].rightBotY;
+        //Construct a string that marks the object: object name + confidence
+        uint32_t objIndex = (uint32_t)objInfos[i].classId;
+        oneResult.result_text = yolov4Label[objIndex] + std::to_string(score) + "\%";
+        ATLAS_LOG_INFO("%d %d %d %d %s\n", oneResult.lt.x, oneResult.lt.y,
+         oneResult.rb.x, oneResult.rb.y, oneResult.result_text.c_str());
+        
+
+        detectResults.emplace_back(oneResult);
+    }
+ 
+    
+
+    // // 手动提取3个feature，用python文件解析
+    // static int imageNum = 0;
+    // int tensorNum = 1;
+    // for(int i = 0; i < outputDataBuffers.size(); ++i){
+    //     std::string fileNameSave = "./results/output" + std::to_string(imageNum) + "_" 
+    //                                 + std::to_string(tensorNum ) + ".bin";
+    //     FILE* output = fopen(fileNameSave.c_str(), "wb+");
+        
+    //     void* data = outputDataBuffers[i];
+    //     int sizeData = outputDataBufferSizes[i];
+    //     size_t num = fwrite(data, 1, sizeData, output);
+    //     std::cout << "write sizeData 0 : " << num << std::endl;
+        
+        
+        
+    //     fclose(output);
+
+    //     if(tensorNum == 3){
+    //         break;
+    //     }
+    //     ++tensorNum;
+
+    // }
+    // ++imageNum;
+   
+
+   
+
+
+
+    
+
+    return detectResults;
+    // ret = WriteResult(objInfos, frameIndex);
+    // if(ret != ACL_ERROR_NONE){
+    //     ATLAS_LOG_ERROR("Failed to wrtie result, ret = %d", ret);
+    //     return ret;
+    // }
+    // ++frameIndex;
+
+    // return ACL_ERROR_NONE;
+
+}
 
 

@@ -216,7 +216,7 @@
 
 # 部署电网检测模型，模型为Darknet框架
 
-利用[github开源工具](https://github.com/Tianxiaomo/pytorch-YOLOv4)来进行Darknet框架下的YOLO v4模型转换到ONNX模型。
+利用[darknet2onnx开源工具](https://gitee.com/ye-hanyu/pytorch-YOLOv4/tree/master#https://pan.baidu.com/s/1dAGEW8cm-dqK14TbhhVetA)来进行Darknet框架下的YOLO v4模型转换到ONNX模型。
 
 - 修改`darlnet2onnx`文件和`darknet2pytorch文件`，去除后处理算子，然后运行以下命令进行转换，见[后处理去除](#3.3 后处理去除)
 
@@ -226,9 +226,19 @@
 
 - 替换动态resize算子为静态算子，运行脚本：`python3.7 dy_resize.py yolov4_-1_3_608_608_dynamic.onnx`,出现[转换错误](#3.4 ATC转换失败)
 
-- [转换过程出现的问题记录](#3 YOLO v4 Darknet到ONNX出现的问题)
+- 运行脚本进行转换：
 
-### 1 后处理代码开发问题
+    ```sh
+    atc --model=yolov4_1_3_608_608.onnx --framework=5 --output=yolov4_power --input_format=NCHW --log=error --soc_version=Ascend310 --input_shape="input:1,3,608,608" --out_nodes="Conv_388:0;Conv_404:0;Conv_420:0" --insert_op_conf=aipp.config
+    ```
+
+    转换出现错误，在昇腾论坛提出问题帖子：[求助](https://gitee.com/ye-hanyu/pytorch-YOLOv4/tree/master#https://pan.baidu.com/s/1dAGEW8cm-dqK14TbhhVetA)
+
+    
+
+    ### [转换过程出现的问题记录](#3 YOLO v4 Darknet到ONNX出现的问题)
+
+### 1 后处理代码开发问题:smile:
 
 `yolov4_model_convert`文件夹中提供了YOLO v4的后处理脚本（`bin_to_predict_yolov4_pytorch.py`)。由于模型转换的过程中去除了YOLO v4的后处理代码，因此在程序运行的过程中看不到相应的处理结果，为完成YOLO v4的后处理模块，采用以下步骤：
 
@@ -251,7 +261,7 @@
 
 
 
-### 2 openv和ffmpeg动态链接库找不到解决办法
+### 2 openv和ffmpeg动态链接库找不到解决办法:smile:
 
 1. 首先确定是否将Alas200Dk上的相关目录拷贝到服务器上，主要有`/usr/lib/aarch64-linux-gnu`和`/home/HwHiAiUser/ascend_ddk/arm`，`/usr/lib64/`三个目录
 
@@ -313,9 +323,9 @@
 
 ## 3 YOLO v4 Darknet到ONNX出现的问题
 
-### 3.1 出现convalution havn't activate linear：不影响转换过程
+### 3.1 出现convalution havn't activate linear：不影响转换过程:smile:
 
-### 3.2 直接在命令行出现exit code 137，内存不足：
+### 3.2 直接在命令行出现exit code 137，内存不足：:smile:
 
 ```sh
 /home/winston/.local/lib/python3.7/site-packages/numpy/core/function_base.py:120: TracerWarning: Converting a tensor to a Python index might cause the trace to be incorrect. We can't record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
@@ -337,9 +347,9 @@ Process finished with exit code 137 (interrupted by signal 9: SIGKILL)
 
 [Process finished with exit code 137](https://stackoverflow.com/questions/43268156/process-finished-with-exit-code-137-in-pycharm)
 
-### 3.3 后处理去除:happy:
+### 3.3 后处理去除:smile:
 
-按照教程使用，出现的模型加上了后处理的部分，查看源码，发现整个流程是从darknet->pytorch->onnx，在darknet->pytorch的时候，源码`darknet2pytorch.py`中，对于darknet的yolo层进行处理，所以最终转换成功的模型加上了后处理部分，需要去除后处理的部分，修改`darknet2pytorch.py`，修改点如下：
+按照[github darknet2onnx工具](https://github.com/Tianxiaomo/pytorch-YOLOv4)转换，出现的模型加上了后处理的部分，查看源码，发现整个流程是从darknet->pytorch->onnx，在darknet->pytorch的时候，源码`darknet2pytorch.py`中，对于darknet的yolo层进行处理，所以最终转换成功的模型加上了后处理部分，需要去除后处理的部分，修改`darknet2pytorch.py`，修改点如下：
 
 ```sh
 #darknet2pytorch.py 
@@ -420,7 +430,7 @@ def transform_to_onnx(cfgfile, weightfile, batch_size=1):
 python3.7 demo_darknet2onnx.py ./electricity_yolov4_darknet/network_final.cfg ./electricity_yolov4_darknet/network_final.weights ./data/dog.jpg 0
 ```
 
-### 3.4 ATC转换失败:sweat:
+### 3.4 ATC转换失败:cry:
 
 替换resize时出现问题：(未解决)
 

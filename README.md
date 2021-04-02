@@ -2,7 +2,7 @@
 
 ​		借助于Ascend310 AI处理器完成深度学习算法部署任务，应用背景为变电站电力巡检，基于YOLO v4算法模型对常见电力巡检目标进行检测，并充分利用Ascend310提供的DVPP等硬件支持能力来完成流媒体的传输、处理等任务，并对系统性能做出一定的优化。
 
-## 1 网络模型的部署
+# 一 网络模型的部署
 
 ​        目前只在Atlas200DK上完成开源YOLO v4网络的部署，由于YOLO含有mish算子，该算子在Atlas200DK现有的版本支持度高，仅在ONNX框架下支持，因此需要将Pytorch下的YOLO v4转换成ONNX，再转换为OM文件。
 
@@ -142,64 +142,17 @@
         export PATH=/home/winston/Ascend/ascend-toolkit/latest/atc/ccec_compiler/bin:/home/winston/Ascend/ascend-toolkit/latest/atc/bin:$PATH
         export ASCEND_OPP_PATH=/home/winston/Ascend/ascend-toolkit/latest/opp
         export ASCEND_AICPU_PATH=/home/winston/Ascend/ascend-toolkit/latest/
-         export ASCEND_SLOG_PRINT_TO_STDOUT=1
-        
-        
+        export ASCEND_SLOG_PRINT_TO_STDOUT=1
         ```
-
+        
     - 模型转换
 
         out_node的设置根据模型而定，最后三个卷积层的输出节点名称
 
         ```sh
-        atc --model=yolov4_-1_3_608_608_dynamic_dbs.onnx --framework=5 --output=yolov4 --input_format=NCHW --log=info --soc_version=Ascend310 --input_shape="input:1,3,608,608" --out_nodes="Conv_402:0;Conv_418:0;Conv_434:0" --insert_op_conf=aipp.config
+    atc --model=yolov4_-1_3_608_608_dynamic_dbs.onnx --framework=5 --output=yolov4 --input_format=NCHW --log=info --soc_version=Ascend310 --input_shape="input:1,3,608,608" --out_nodes="Conv_402:0;Conv_418:0;Conv_434:0" --insert_op_conf=aipp.config
         ```
-
-        >aipp配置文件如下：
-        >
-        >```
-        >aipp_op{
-        >aipp_mode:static
-        >input_format : YUV420SP_U8
-        >
-        >src_image_size_w : 608
-        >src_image_size_h : 608
-        >
-        >crop: false
-        >load_start_pos_h : 0
-        >load_start_pos_w : 0
-        >crop_size_w : 608
-        >crop_size_h: 608
-        >
-        >csc_switch : true
-        >rbuv_swap_switch : true
-        >
-        >
-        >min_chn_0 : 0
-        >min_chn_1 : 0
-        >min_chn_2 : 0
-        >var_reci_chn_0: 0.003921568627451
-        >var_reci_chn_1: 0.003921568627451
-        >var_reci_chn_2: 0.003921568627451
-        >
-        >
-        >matrix_r0c0: 256
-        >matrix_r0c1: 0
-        >matrix_r0c2: 359
-        >matrix_r1c0: 256
-        >matrix_r1c1: -88
-        >matrix_r1c2: -183
-        >matrix_r2c0: 256
-        >matrix_r2c1: 454
-        >matrix_r2c2: 0
-        >input_bias_0: 0
-        >input_bias_1: 128
-        >input_bias_2: 128
-        >}
-        >```
-
-        
-
+    
 - 开发过程中出现的一些问题记录如下：
 
     1. [后处理代码开发问题](###后处理代码开发问题):happy:
@@ -207,14 +160,10 @@
         Ascend310目前版本并不支持YOLO v4的后处理代码，因此采用C++代码自己实现后处理代码，C++代码参考YOLO v3后处理C++代码和YOLO v4后处理Python代码进行编写测试。
 
     2. [出现opencv和ffmpeg动态链接库找不到](###openv和ffmpeg动态链接库找不到解决办法):happy:
+    
+        
 
-
-
-
-
-
-
-# 部署电网检测模型，模型为Darknet框架
+# 二 部署电网检测模型，模型为Darknet框架
 
 利用[darknet2onnx开源工具](https://gitee.com/ye-hanyu/pytorch-YOLOv4/tree/master#https://pan.baidu.com/s/1dAGEW8cm-dqK14TbhhVetA)来进行Darknet框架下的YOLO v4模型转换到ONNX模型。
 
@@ -233,8 +182,6 @@
     ```
 
     转换出现错误，在昇腾论坛提出问题帖子：[求助](https://bbs.huaweicloud.com/forum/forum.php?mod=viewthread&tid=117996)
-
-    
 
     ### [转换过程出现的问题记录](#3 YOLO v4 Darknet到ONNX出现的问题)
 
@@ -321,11 +268,11 @@
 
         
 
-## 3 YOLO v4 Darknet到ONNX出现的问题
+### 3 YOLO v4 Darknet到ONNX出现的问题
 
-### 3.1 出现convalution havn't activate linear：不影响转换过程:smile:
+#### 3.1 出现convalution havn't activate linear：不影响转换过程:smile:
 
-### 3.2 直接在命令行出现exit code 137，内存不足：:smile:
+#### 3.2 直接在命令行出现exit code 137，内存不足：:smile:
 
 ```sh
 /home/winston/.local/lib/python3.7/site-packages/numpy/core/function_base.py:120: TracerWarning: Converting a tensor to a Python index might cause the trace to be incorrect. We can't record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
@@ -347,7 +294,7 @@ Process finished with exit code 137 (interrupted by signal 9: SIGKILL)
 
 [Process finished with exit code 137](https://stackoverflow.com/questions/43268156/process-finished-with-exit-code-137-in-pycharm)
 
-### 3.3 后处理去除:smile:
+#### 3.3 后处理去除:smile:
 
 按照[github darknet2onnx工具](https://github.com/Tianxiaomo/pytorch-YOLOv4)转换，出现的模型加上了后处理的部分，查看源码，发现整个流程是从darknet->pytorch->onnx，在darknet->pytorch的时候，源码`darknet2pytorch.py`中，对于darknet的yolo层进行处理，所以最终转换成功的模型加上了后处理部分，需要去除后处理的部分，修改`darknet2pytorch.py`，修改点如下：
 
@@ -430,7 +377,7 @@ def transform_to_onnx(cfgfile, weightfile, batch_size=1):
 python3.7 demo_darknet2onnx.py ./electricity_yolov4_darknet/network_final.cfg ./electricity_yolov4_darknet/network_final.weights ./data/dog.jpg 0
 ```
 
-### 3.4 ATC转换失败:cry:
+#### 3.4 ATC转换失败:cry:
 
 替换resize时出现问题：(未解决)
 

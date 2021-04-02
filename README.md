@@ -6,7 +6,7 @@
 
 >
 > 
-> ./
+> ./  
 > |------build: cmake目录  
 > |------data:  输入数据文件夹  
 > |------iamge：档记录图片文件夹  
@@ -17,9 +17,9 @@
 > |------result：程序输出的结果保存目录  
 > |------script：打开presenterserver的脚本文件  
 > |------src：  工程源代码目录  
-> |      |------acl.json：acl初始化配置文件  
-> |      |------VideoMain.cpp：输入视频或者RTSP流的处理函数  
-> |      |------ImageMain.cpp:输入图片的处理主函数  
+> |              |------acl.json：acl初始化配置文件  
+> |              |------VideoMain.cpp：输入视频或者RTSP流的处理函数  
+> |              |------ImageMain.cpp:输入图片的处理主函数  
 > |------build.sh:对整个工程进行编译  
 > |------load.sh:从Atlas200DK上下载日志文件、输出文件的脚本  
 > |------upload.sh:上传可执行文件脚本  

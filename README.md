@@ -232,7 +232,7 @@
     atc --model=yolov4_1_3_608_608.onnx --framework=5 --output=yolov4_power --input_format=NCHW --log=error --soc_version=Ascend310 --input_shape="input:1,3,608,608" --out_nodes="Conv_388:0;Conv_404:0;Conv_420:0" --insert_op_conf=aipp.config
     ```
 
-    转换出现错误，在昇腾论坛提出问题帖子：[求助](https://gitee.com/ye-hanyu/pytorch-YOLOv4/tree/master#https://pan.baidu.com/s/1dAGEW8cm-dqK14TbhhVetA)
+    转换出现错误，在昇腾论坛提出问题帖子：[求助](https://bbs.huaweicloud.com/forum/forum.php?mod=viewthread&tid=117996)
 
     
 

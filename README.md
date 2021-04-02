@@ -2,6 +2,32 @@
 
 ​		借助于Ascend310 AI处理器完成深度学习算法部署任务，应用背景为变电站电力巡检，基于YOLO v4算法模型对常见电力巡检目标进行检测，并充分利用Ascend310提供的DVPP等硬件支持能力来完成流媒体的传输、处理等任务，并对系统性能做出一定的优化。
 
+## 目录结构与说明：
+
+> 
+>./
+|------build: cmake目录
+|------data:  输入数据文件夹
+|------iamge：档记录图片文件夹
+|------inc：  工程include文件夹
+|------model：模型文件存放目录
+|------out：生成的可执行文件存放目录
+|------presenterserver：视频服务器
+|------result：程序输出的结果保存目录
+|------script：打开presenterserver的脚本文件
+|------src：  工程源代码目录
+|      |------acl.json：acl初始化配置文件
+|      |------VideoMain.cpp：输入视频或者RTSP流的处理函数
+|      |------ImageMain.cpp:输入图片的处理主函数
+|------build.sh:对整个工程进行编译
+|------load.sh:从Atlas200DK上下载日志文件、输出文件的脚本
+|------upload.sh:上传可执行文件脚本
+|------upload_all.sh：上传工程所有文件的目录
+|------video_main.sh:输入为视频的执行脚本
+|------rtsp_main.sh:输入为rtsp视频流的执行脚本
+|------image_main.sh:输入为图片的执行脚本
+
+
 # 一 网络模型的部署
 
 ​        目前只在Atlas200DK上完成开源YOLO v4网络的部署，由于YOLO含有mish算子，该算子在Atlas200DK现有的版本支持度高，仅在ONNX框架下支持，因此需要将Pytorch下的YOLO v4转换成ONNX，再转换为OM文件。

@@ -2,15 +2,24 @@
 * @Author: winston
 * @Date:   2021-01-07 20:58:09
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-04-01 09:55:40
+* @Last Modified time: 2021-04-10 22:56:31
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/ModelProcess.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/model_infer.cpp 
 */
-#include "ModelProcess.h"
+#include "model_infer.h"
 #include <iostream>
+#include <queue>
+#include <mutex>
+#include <chrono>
+#include <thread>
 
-// #include <vector>
+typedef std::pair<vector<size_t>, vector<void*> > imgPair;
+
+extern std::mutex mtxQueueInfer;
+extern std::queue<std::pair<vector<size_t>, vector<void*>> > queueInfer;
+
 extern fstream resultInfer;
+
 namespace {
 const static std::vector<std::string> yolov3Label = { "person", "bicycle", "car", "motorbike",
 "aeroplane","bus", "train", "truck", "boat",
@@ -60,12 +69,54 @@ ModelProcess::ModelProcess(aclrtStream _stream, int _width, int _height):stream(
 
 }
 ModelProcess::~ModelProcess(){
+    
+}
+void ModelProcess::Destroy(){
     Unload();
     DestroyDesc();
     DestroyInput();
     DestroyOutput();
 }
 
+Result ModelProcess::Init(const char* modelPath, void* inputDataBuffer, size_t inputBufferSize)
+{
+    // 加载模型
+    // const char* modelPath = "./model/yolov3.om";
+    Result resCode = LoadModelFromFileWithMem(modelPath);
+    if(resCode != SUCCESS){
+         ATLAS_LOG_ERROR("Load model file failed");
+         return FAILED;
+    }
+    //  创建模型描述信息
+    resCode = CreateDesc();
+    if(resCode != SUCCESS){
+        (void)aclmdlDestroyDesc(modelDesc);
+        modelDesc = nullptr;
+
+        ATLAS_LOG_ERROR("Create model desc failed");
+        
+        return FAILED;
+    }
+
+    // 创建模型推理的输入输出
+    resCode = CreateInput(inputDataBuffer, modelWidth*modelHeight*3/2);
+    if(resCode != SUCCESS){
+        ATLAS_LOG_ERROR("model infer create input failed");
+        DestroyInput();
+        CHECK_ACL(acldvppFree(inputDataBuffer));
+        return FAILED;
+    }
+
+    resCode = CreateOutputWithMem();
+    if(resCode != SUCCESS){
+        ATLAS_LOG_ERROR("model infer create output failed");
+        DestroyOutput();
+        CHECK_ACL(acldvppFree(inputDataBuffer));
+    }
+
+    ATLAS_LOG_ERROR("model infer init success");
+
+}
 Result ModelProcess::LoadModelFromFileWithMem(const char *modelPath){
 	if(loadFlag){
 		ATLAS_LOG_ERROR("ACL has already loaded a model");
@@ -368,7 +419,20 @@ Result ModelProcess::Execute(){
     clock_t endTime = clock();
     resultInfer << "infer a frame time: " << (double)(endTime - beginTime)*1000/CLOCKS_PER_SEC << " ms" <<endl;
 
-    // ATLAS_LOG_INFO("model execute success");
+    if(outputDataBuffers.size() != 0){
+        mtxQueueInfer.lock();
+        queueInfer.push(std::make_pair(outputDataBufferSizes, outputDataBuffers));
+        if(queueInfer.size() > 50){
+            mtxQueueInfer.unlock();
+
+        }
+        else{
+            mtxQueueInfer.unlock();
+        }
+    }
+    
+
+    ATLAS_LOG_INFO("model execute success");
     return SUCCESS;
 }
 
@@ -569,7 +633,7 @@ aclError ModelProcess::GetObjectInfoYolo(std::vector<RawData> &modelOutput, std:
     for (size_t i = 0; i < modelOutput.size(); i++) {
         void *hostPtrBuffer = outputDataBuffers[i];
         std::shared_ptr<void> hostPtrBufferManager(hostPtrBuffer, [](void *) {});
-        aclError ret = aclrtMemcpy(hostPtrBuffer, modelOutput[i].lenOfByte, modelOutput[i].data.get(),
+        aclError ret = aclrtMemcpy(hostPtrBuffer, modelOutput[i].lenOfByte, modelOutput[i].data,
             modelOutput[i].lenOfByte, ACL_MEMCPY_DEVICE_TO_HOST);
         if (ret!= ACL_ERROR_NONE || hostPtrBuffer == nullptr) {
             ATLAS_LOG_ERROR("Failed to copy output buffer of model from device to host, ret =%d", ret);
@@ -583,7 +647,7 @@ aclError ModelProcess::GetObjectInfoYolo(std::vector<RawData> &modelOutput, std:
     yoloImageInfo.imgHeight      = frameHeight;
     yoloImageInfo.modelWidth     = modelWidth;
     yoloImageInfo.modelHeight    = modelHeight;
-    Yolov3DetectionOutput(hostPtr, objInfos, yoloImageInfo);
+    Yolov4DetectionOutput(hostPtr, objInfos, yoloImageInfo);
     return ACL_ERROR_NONE;
 }
 
@@ -598,7 +662,8 @@ vector<DetectionResult> ModelProcess::PostProcessYolov4(int frameWidth, int fram
     int size = outputDataBuffers.size();
     for(int i = 0; i < size; ++i){
         RawData rawData = RawData();
-        rawData.data.reset(outputDataBuffers[i], [](void*) {});
+        // rawData.data.reset(outputDataBuffers[i], [](void*) {});
+        rawData.data = outputDataBuffers[i];
         rawData.lenOfByte = outputDataBufferSizes[i];
         Output.push_back(std::move(rawData));
     }
@@ -666,12 +731,6 @@ vector<DetectionResult> ModelProcess::PostProcessYolov4(int frameWidth, int fram
     // }
     // ++imageNum;
    
-
-   
-
-
-
-    
 
     return detectResults;
     // ret = WriteResult(objInfos, frameIndex);

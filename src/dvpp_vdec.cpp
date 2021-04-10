@@ -2,16 +2,25 @@
 * @Author: winston
 * @Date:   2021-01-07 17:08:57
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-03-30 15:54:39
+* @Last Modified time: 2021-04-10 23:16:53
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/DvppVdec.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/dvpp_vdec.cpp 
 */
 #include <iostream>
 #include <string>
+#include <queue>
+#include <thread>
+#include <mutex>
 
-#include "DvppVdec.h"
+#include "dvpp_vdec.h"
+
 extern fstream resultVdec;
 
+extern std::mutex mtxQueueRtsp;
+extern std::queue<std::pair<int, AVPacket> > queueRtsp;
+
+extern std::mutex mtxQueueInput;
+extern std::queue<std::pair<int, RawData> > queueInput;
 // 用户自定义数据 userdata
 class VdecContext{
 public:
@@ -23,12 +32,13 @@ public:
 // 回调函数
 static void VdecCallback(acldvppStreamDesc* input, acldvppPicDesc* output, void* userdata)
 {
-	// ATLAS_LOG_INFO("enter dvpp callback func");
+
+	ATLAS_LOG_INFO("enter dvpp callback func");
     static int count = 1;
-    VdecContext* ctx = (VdecContext*)userdata;
-    CHECK_ACL(aclrtSetCurrentContext(*ctx->vdec->GetDeviceCtx()));
+    // VdecContext* ctx = (VdecContext*)userdata;
+    // CHECK_ACL(aclrtSetCurrentContext(*ctx->vdec->GetDeviceCtx()));
 
-
+    static int indexInput = 0;
     if (output != nullptr) {
     	//获取VDEC解码的输出内存，调用自定义函数WriteToFile将输出内存中的数据写入文件后，再调用acldvppFree接口释放输出内存
         uint8_t* vdecOutBufferDev = (uint8_t*)acldvppGetPicDescData(output);
@@ -38,7 +48,7 @@ static void VdecCallback(acldvppStreamDesc* input, acldvppPicDesc* output, void*
             if (retCode == 0) {
                 // process task: write file
                 int size = acldvppGetPicDescSize(output);
-                std::cout << "vdec callback output size: " << size << std::endl;
+                // std::cout << "vdec callback output size: " << size << std::endl;
      //         // ATLAS_LOG_INFO("output size: %u", size);
                 // std::string fileNameSave = "./data/dvpp_vdec" + std::to_string(count);
      //         // vdec输出结果在device侧，在WriteToFile方法中进行下述处理
@@ -51,11 +61,27 @@ static void VdecCallback(acldvppStreamDesc* input, acldvppPicDesc* output, void*
 
 
                 // 继续resize图像
-                ctx->vdec->GetHandler()(vdecOutBufferDev, size);
+                // ctx->vdec->GetHandler()(vdecOutBufferDev, size);
+        
+                mtxQueueInput.lock();
+                RawData vdecData;
+                vdecData.lenOfByte = size;
+                vdecData.data = vdecOutBufferDev;
+                queueInput.push(std::make_pair(indexInput++, vdecData));
+
             } else {
                 ATLAS_LOG_ERROR("vdec decode frame failed,err code = %d", retCode);
             }
-
+            if(queueInput.size() >= 50){
+                
+                for(int i = 0; i < 10; ++i){
+                    queueInput.pop();
+                }
+                mtxQueueInput.unlock();
+            }
+            else{
+                mtxQueueInput.unlock();
+            }
             // 释放acldvppPicDesc类型的数据，表示解码后输出图片描述数据
             aclError ret = acldvppFree((void*)vdecOutBufferDev);
             if (ret != ACL_ERROR_NONE) {
@@ -71,13 +97,13 @@ static void VdecCallback(acldvppStreamDesc* input, acldvppPicDesc* output, void*
 
     
 
-    av_packet_unref((AVPacket*)ctx->packet);
-    delete ctx->packet;
-    delete ctx;
+    // av_packet_unref((AVPacket*)ctx->packet);
+    // delete ctx->packet;
+    // delete ctx;
 
     ++count; 
 
-    // ATLAS_LOG_INFO("success to callback %d",  count);
+    ATLAS_LOG_INFO("success to callback %d",  count);
 }
 
 DvppVdec::DvppVdec(): vdecHeight(0),vdecWidth(0), outputSize(0), 
@@ -119,7 +145,7 @@ Result DvppVdec::Init(const pthread_t threadId, int height,
     CHECK_ACL(aclvdecSetChannelDescThreadId(vdecChannelDesc, threadId));
     CHECK_ACL(aclvdecSetChannelDescCallback(vdecChannelDesc, &VdecCallback));
     CHECK_ACL(aclvdecSetChannelDescEnType(vdecChannelDesc, enType));
-    CHECK_ACL(aclvdecSetChannelDescOutPicFormat(vdecChannelDesc, format));
+    CHECK_ACL(aclvdecSetChannelDescOutPicFormat(vdecChannelDesc, PIXEL_FORMAT_YUV_SEMIPLANAR_420));
     // CHECK_ACL(aclvdecSetChannelDescOutPicWidth(vdecChannelDesc, width));
     // CHECK_ACL(aclvdecSetChannelDescOutPicHeight(vdecChannelDesc, height));
 
@@ -132,12 +158,12 @@ Result DvppVdec::Init(const pthread_t threadId, int height,
     }
 
 
-    // ATLAS_LOG_INFO("dvpp vdec init resource success");
+    ATLAS_LOG_INFO("dvpp vdec init resource success");
     return SUCCESS;
 }
 
 Result DvppVdec::vdecSendFrame(AVPacket* pkt){
-	// ATLAS_LOG_INFO("start send frame decoder");
+	ATLAS_LOG_INFO("start send frame decoder");
     clock_t beginTime = clock();
 	AVPacket *framePacket = new AVPacket();
     av_packet_ref(framePacket, pkt);
@@ -151,7 +177,8 @@ Result DvppVdec::vdecSendFrame(AVPacket* pkt){
         return FAILED; 
     }
     // 要注意在设置描述信息时候的内存大小与实际图像大小是否一致
-  	// framePacket->data 表示Device存放输入视频数据的内存，framePacket->size表示内存大小
+  	// framePacket->data 表示Device存放输入视频数据的内存，framePacket->size表示内存大小 
+    std::cout << "=======frame size ========" << framePacket->size << std::endl;
     CHECK_ACL(acldvppSetStreamDescData(streamDesc, framePacket->data));
     CHECK_ACL(acldvppSetStreamDescSize(streamDesc, framePacket->size));
     CHECK_ACL(acldvppSetStreamDescFormat(streamDesc, aclvdecGetChannelDescEnType(vdecChannelDesc)));

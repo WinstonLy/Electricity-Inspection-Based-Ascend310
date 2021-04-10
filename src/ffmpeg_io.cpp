@@ -2,16 +2,22 @@
 * @Author: winston
 * @Date:   2021-01-09 16:06:22
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-03-30 15:18:09
+* @Last Modified time: 2021-04-10 23:31:49
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/FFMPEGInOut.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/ffmpeg_io.cpp 
 */
-#include "FFMPEGInOut.h"
+#include "ffmpeg_io.h"
 
-
+#include <queue>
+#include <mutex>
 #include <chrono>
 #include <thread>
+
+extern bool runFlag;
+extern std::mutex mtxQueueRtsp;
+extern std::queue<std::pair<int, AVPacket> > queueRtsp;
 extern fstream resultFFmpeg;
+
 // FFMPEGInput 成员函数
 FFMPEGInput::FFMPEGInput():avfcRtspInput(nullptr), bsfc(nullptr),
     avcpRtspInput(nullptr), decoderContext(nullptr), bsfFilter(nullptr), 
@@ -24,7 +30,7 @@ FFMPEGInput::~FFMPEGInput(){
     avformat_free_context(avfcRtspInput);
 }
 
-void FFMPEGInput::InputInit(const string inputPath){
+void FFMPEGInput::InputInit(const char* inputPath){
     clock_t beginTime = clock();
     // ffmpeg init
     av_register_all();						// Initialize libavformat and register all the muxers(复用器）, demuxers（解复用器） and protocols.
@@ -33,8 +39,7 @@ void FFMPEGInput::InputInit(const string inputPath){
 
     // init ffmpeg input
     // 申请输入rtsp
-    string rtspInputPath = inputPath;
-    ATLAS_LOG_INFO("[rtsp input]: %s", rtspInputPath.c_str());
+    ATLAS_LOG_INFO("[rtsp input]: %s",inputPath);
     
     // 初始化 rtsp input AVFormatContext 对象
     // AVFormatContext: 描述了一个媒体文件或媒体流的构成和基本信息
@@ -44,13 +49,16 @@ void FFMPEGInput::InputInit(const string inputPath){
     AVDictionary *avdic{nullptr};	
     // 设置为 tcp 传输，最大延时时间
     av_dict_set(&avdic, "rtsp_transport", "tcp", 0);
-    av_dict_set(&avdic, "max_dealy", "10000", 0);	
-    av_dict_set(&avdic, "buffer_size", "10240000", 0); 
+    av_dict_set(&avdic, "max_dealy", "100000000", 0);	
+    av_dict_set(&avdic, "buffer_size", "10485760", 0); 
+    av_dict_set(&avdic, "stimeout", "5000000", 0);
+    av_dict_set(&avdic, "pkt_size", "10485760", 0); 
+    av_dict_set(&avdic, "reorder_queue_size", "0", 0);
 
     // Open an input stream and read the header. The codecs are not opened.
-    uint8_t ret = avformat_open_input(&avfcRtspInput, rtspInputPath.c_str(), nullptr, &avdic);
+    uint8_t ret = avformat_open_input(&avfcRtspInput, inputPath, nullptr, &avdic);
     if(ret != 0){
-    	  ATLAS_LOG_ERROR(" can't open input: %s, ffmpeg err code: %u",  rtspInputPath.c_str(), ret);
+    	  ATLAS_LOG_ERROR(" can't open input: %s, ffmpeg err code: %u", inputPath, ret);
     	  return;
     }
 
@@ -61,7 +69,7 @@ void FFMPEGInput::InputInit(const string inputPath){
     	  return;
     }
     // print rtsp input message,第四个参数为0表示输入，为1表示输出
-    av_dump_format(avfcRtspInput, 0, rtspInputPath.c_str(),0);
+    av_dump_format(avfcRtspInput, 0, inputPath, 0);
 
     // 查找码流中是否有视频流
     for(uint8_t i = 0; i < avfcRtspInput->nb_streams; ++i){
@@ -81,7 +89,7 @@ void FFMPEGInput::InputInit(const string inputPath){
     // AVCodecParameters: This struct describes the properties of an encoded stream
     avcpRtspInput = avfcRtspInput->streams[videoIndex]->codecpar;
 
-    cout << "[FFMPEGInput::Init] " << rtspInputPath << " codec name:" << avcodec_get_name(avcpRtspInput->codec_id) << endl;
+    cout << "[FFMPEGInput::Init] " << inputPath << " codec name:" << avcodec_get_name(avcpRtspInput->codec_id) << endl;
     cout << "avcc profile: " << avcpRtspInput->profile << endl;
     cout << "frame h: " << avcpRtspInput->height << " frame w: " << avcpRtspInput->width << endl;
     cout << "codec_tag " << avcpRtspInput->codec_tag << endl;
@@ -90,8 +98,8 @@ void FFMPEGInput::InputInit(const string inputPath){
     // 判断是否编码格式为AVC1，如果是转换成h264，avc1不带起始码0x00000001
 
   	if(true || avcpRtspInput->codec_tag == AVC1_TAG){
-  		  // a bitstream filter with the specified name or NULL if no such bitstream filter exists.
-	 	    bsfFilter = av_bsf_get_by_name("h264_mp4toannexb");
+  		// a bitstream filter with the specified name or NULL if no such bitstream filter exists.
+	 	bsfFilter = av_bsf_get_by_name("h264_mp4toannexb");
   		
   	    ret = av_bsf_alloc(bsfFilter, &bsfc);
   	    if(ret < 0){
@@ -114,22 +122,27 @@ void FFMPEGInput::InputInit(const string inputPath){
 }
 void FFMPEGInput::Run(){
     // 开始从rtsp流获取视频帧
-    static int count = 100;
+    static int indexFrame = 0;
     fstream outfile;
     //outfile.open("./data/result.txt");
+   
+    AVPacket packet;
+    av_init_packet(&packet);
     
-    while(true){
+
+    // need stop flag?
+    runFlag = true;
+    while(runFlag){
         clock_t beginTime = clock();
-    	AVPacket packet;
-        av_init_packet(&packet);
-        packet.data = nullptr;
-        packet.size = 0;
-        
+   
         // 从 avfcRtspInput 中读取码流进入 packet
         // clock_t beginTime = clock();
         uint32_t ret = av_read_frame(avfcRtspInput, &packet);
-        if(packet.data == nullptr)
-            break;
+        // if(packet.data == nullptr)
+        // {
+        //     runFlag = false;
+        //     break;
+        // }
 	    if (ret < 0) {
         	char err_buf[AV_ERROR_MAX_STRING_SIZE] = {0};
         	std::cerr << "[FFMPEGInput::ReceiveSinglePacket] err string: "
@@ -153,39 +166,56 @@ void FFMPEGInput::Run(){
 	    
         if (packet.stream_index == videoIndex) {
             // test read frame packet->send vdec
-            // DecoderSendFrame(&packet, vdecChannelDesc);
+            // send video packet to ffmeg
             ret = av_bsf_send_packet(bsfc, &packet);
             if (ret < 0) {
                 std::cout << "av_bsf_send_packet failed" << std::endl;
                 continue;
             }
 
-            AVPacket filtered_packet;
-            av_init_packet(&filtered_packet);
-            filtered_packet.data = nullptr;
-            filtered_packet.size = 0;
-
-		    // 对读取的packet进行处理
-            ATLAS_LOG_INFO("decoder send freame");
+		    // read a single frame from ffmpeg
+            // ATLAS_LOG_INFO("decoder send freame");
             // packet_handler = DecoderSendFrame;
-            while (av_bsf_receive_packet(bsfc, &filtered_packet) == 0) {
-                // 执行解码
-                if(packetHandler){
-                	packetHandler(&filtered_packet);
-                }
-                av_packet_unref(&filtered_packet);
+            // while (av_bsf_receive_packet(bsfc, &packet) == 0) {
+            //     // 执行解码
+            //     // if(packetHandler){
+            //     // 	packetHandler(&packet);
+            //     // }
+            //     // av_packet_unref(&packet);
+            //     
+                
+            // }
+            
+            // packet 进入队列
+            if(av_bsf_receive_packet(bsfc, &packet) == 0)
+            {
+                mtxQueueRtsp.lock();
+                queueRtsp.push(std::make_pair(indexFrame++, packet));
+            }
+            if(queueRtsp.size() >= 100){
+                
+                std::cout << "[WARNING] rtsp input size is " << queueRtsp.size() <<std::endl; 
+                
+                // 清空队列
+                std::queue<std::pair<int, AVPacket> > tempQueue;
+                swap(tempQueue, queueRtsp);
+                mtxQueueRtsp.unlock();
+            }
+            else{
+                mtxQueueRtsp.unlock();
             }
         }
 
         av_packet_unref(&packet);
-        --count;
-
+        // --count;
+        
         // clock_t endTime = clock();
-
         // resultFFmpeg << "FFmpeg read a frame time: " << (double)(endTime - beginTime)*1000/CLOCKS_PER_SEC << " ms" <<endl;
-
         // std::cout << "ffmepg read frame " << count << std::endl;
     }
+
+    av_bsf_free(&bsfc);
+
     ATLAS_LOG_INFO("process end");
 }
 void FFMPEGInput::Destroy(){

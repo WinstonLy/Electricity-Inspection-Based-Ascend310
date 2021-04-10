@@ -2,13 +2,13 @@
 * @Author: winston
 * @Date:   2021-01-07 09:24:43
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-03-30 14:31:02
+* @Last Modified time: 2021-04-02 20:45:53
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/DvppVenc.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/dvpp_venc.cpp 
 */
 #include <iostream>
 
-#include "DvppVenc.h"
+#include "dvpp_venc.h"
 #include "ascenddk/presenter/agent/presenter_channel.h"
 // send venc frame 时候的自定义数据
 class VencContext{

@@ -2,9 +2,9 @@
 * @Author: winston
 * @Date:   2021-03-10 15:41:25
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-04-01 09:44:40
+* @Last Modified time: 2021-04-07 13:27:59
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/ImageMain.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/image_main.cpp 
 */
 #include <iostream>
 #include <fstream>
@@ -19,7 +19,7 @@
 #include "acl/ops/acl_dvpp.h"
 #include <atomic>
 #include <map>
-#include<Python.h>
+#include <Python.h>
 // #include <opencv2/highgui/highgui.hpp>
 // #include <opencv2/imgproc/imgproc.hpp> 
 // #include <opencv2/opencv.hpp>
@@ -32,14 +32,14 @@ extern "C" {
 #include "libavutil/time.h"
 }
 
-#include "FFMPEGInOut.h"
-#include "DvppVdec.h"
-#include "DvppVenc.h"
-#include "DvppVpcResize.h"
-#include "SampleProcess.h"
-#include "ModelProcess.h"
-#include "DvppJpegE.h"
-#include "DvppJpegD.h"
+#include "ffmpeg_io.h"
+#include "dvpp_vdec.h"
+#include "dvpp_venc.h"
+#include "dvpp_vpc.h"
+#include "sample_objection.h"
+#include "model_infer.h"
+#include "dvpp_jpege.h"
+#include "dvpp_jpegd.h"
 // std::function<void(AVPacket *, aclvdecChannelDesc *, uint8_t)> packet_handler;
 static uint8_t timeStamp;
 static bool runFlag = true;
@@ -160,7 +160,12 @@ int main(int argc, char *argv[]){
      // loop begin
     PicDesc testPic[] = {
         { "./data/persian_cat_1024_1536_283.jpg", 1024, 1536 },
-        { "./data/wood_rabbit_1024_1061_330.jpg", 1024, 1061 },
+        { "./data/dog_768_576.jpg", 768, 576 },
+        { "./data/eagle_773_512.jpg", 773, 512 },
+        { "./data/giraffe_500_500.jpg", 500, 500 },
+        { "./data/horses_773_512.jpg", 773, 512 },
+        { "./data/person_640_424.jpg", 640, 424 },
+        // { "./data/wood_rabbit_1024_1061_330.jpg", 1024, 1061 },
   
 
    

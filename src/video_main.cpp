@@ -24,13 +24,14 @@ extern "C" {
 #include "libavutil/time.h"
 }
 
-#include "FFMPEGInOut.h"
-#include "DvppVdec.h"
-#include "DvppVenc.h"
-#include "DvppVpcResize.h"
-#include "SampleProcess.h"
-#include "ModelProcess.h"
-#include "DvppJpegE.h"
+
+#include "ffmpeg_io.h"
+#include "dvpp_vdec.h"
+#include "dvpp_venc.h"
+#include "dvpp_vpc.h"
+#include "sample_objection.h"
+#include "model_infer.h"
+#include "dvpp_jpege.h"
 // std::function<void(AVPacket *, aclvdecChannelDesc *, uint8_t)> packet_handler;
 static uint8_t timeStamp;
 static bool runFlag = true;

@@ -1,11 +1,11 @@
-#ifndef __MODEL_PROCESS_H__
-#define __MODEL_PROCESS_H__
+#ifndef __MODEL_INFER_H__
+#define __MODEL_INFER_H__
 
 #include <iostream>
 #include "acl/acl.h"
 #include "utils.h"
 #include <vector>
-#include "YoloPostProcess.h"
+#include "yolov4_post.h"
 #include "ascenddk/presenter/agent/presenter_channel.h"
 
 using namespace ascend::presenter;
@@ -36,6 +36,9 @@ public:
 	Result CreateOutput();
 	Result CreateOutputWithMem();
 	void DestroyOutput();
+
+	Result Init(const char* modelPath, void* inputDataBuffer, size_t inputBufferSize);
+	void Destroy();
 
 	Result Execute();
 

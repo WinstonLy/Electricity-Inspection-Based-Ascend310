@@ -9,14 +9,13 @@ project(acl_cam)
 # Compile options
 add_compile_options(-std=c++17 -g -O0)
 
+
+
 add_definitions(-DENABLE_DVPP_INTERFACE)
 
 #set(CMAKE_SKIP_RPATH TRUE)
 
 
-find_package(PythonInterp REQUIRED)
-
-find_package(PythonLibs REQUIRED)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/../out)
 
@@ -49,19 +48,75 @@ link_directories(
 	    ${ACL_PATH}/lib64/
 )
 
-add_executable(video_main
-        VideoMain.cpp
-        DvppVdec.cpp
-        DvppVenc.cpp
-        DvppVpcResize.cpp
-        FFMPEGInOut.cpp
-        SampleProcess.cpp
-        ModelProcess.cpp
-        DvppJpegE.cpp
-        YoloPostProcess.cpp
+#add_executable(video_main
+#        video_main.cpp
+#        dvpp_vdec.cpp
+#        dvpp_venc.cpp
+#        dvpp_vpc.cpp
+#        ffmpeg_io.cpp
+#        sample_objection.cpp
+#        model_infer.cpp
+#        dvpp_jpege.cpp
+#        yolov4_post.cpp
+#        utils.cpp)
+#
+#target_link_libraries(video_main
+#        ascendcl
+#        acl_dvpp
+#        runtime
+#        /usr/lib64/libslog.so
+#        /usr/lib64/libc_sec.so
+#        /usr/lib64/libmedia_mini.so
+#        pthread
+#        opencv_core
+#        opencv_imgproc
+#        opencv_videoio
+#        avformat
+#        avutil
+#        avcodec
+#        protobuf 
+#        presenteragent)
+#        
+#add_executable(image_main
+#        image_main.cpp
+#        dvpp_vpc.cpp
+#        ffmpeg_io.cpp
+#        sample_objection.cpp
+#        model_infer.cpp
+#        dvpp_jpege.cpp
+#        yolov4_post.cpp
+#        dvpp_jpegd.cpp
+#        utils.cpp)
+#
+#target_link_libraries(image_main
+#        ascendcl
+#        acl_dvpp
+#        runtime
+#        /usr/lib64/libslog.so
+#        /usr/lib64/libc_sec.so
+#        /usr/lib64/libmedia_mini.so
+#        pthread
+#        opencv_core
+#        opencv_imgproc
+#        opencv_videoio
+#        avformat
+#        avutil
+#        avcodec
+#        protobuf 
+#        presenteragent)
+add_executable(multi_main
+        multi_main.cpp
+        dvpp_vdec.cpp
+        dvpp_venc.cpp
+        dvpp_vpc.cpp
+        ffmpeg_io.cpp
+        sample_objection.cpp
+        model_infer.cpp
+        dvpp_jpege.cpp
+        yolov4_post.cpp
         utils.cpp)
 
-target_link_libraries(video_main
+target_link_libraries(multi_main
         ascendcl
         acl_dvpp
         runtime
@@ -76,32 +131,4 @@ target_link_libraries(video_main
         avutil
         avcodec
         protobuf 
-        presenteragent
-        ${PYTHON_LIBRARIES})
-        
-add_executable(image_main
-        ImageMain.cpp
-        DvppVpcResize.cpp
-        ModelProcess.cpp
-        DvppJpegE.cpp
-        DvppJpegD.cpp
-        YoloPostProcess.cpp
-        utils.cpp)
-
-target_link_libraries(image_main
-        ascendcl
-        acl_dvpp
-        runtime
-        /usr/lib64/libslog.so
-        /usr/lib64/libc_sec.so
-        /usr/lib64/libmedia_mini.so
-        pthread
-        opencv_core
-        opencv_imgproc
-        opencv_videoio
-       avformat
-        avutil
-        avcodec
-        protobuf 
-        presenteragent
-        ${PYTHON_LIBRARIES})
+        presenteragent)

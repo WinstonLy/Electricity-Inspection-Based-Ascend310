@@ -1,1 +1,11 @@
-{}
+{
+	"dump":{                                                                                 
+		"dump_list":[                                                                        
+			{	"model_name":"yolov4"
+			}
+		],  
+		"dump_path":"/home/HwHiAiUser/output",
+        "dump_mode":"output",
+		"dump_op_switch":"off"
+	} 
+}

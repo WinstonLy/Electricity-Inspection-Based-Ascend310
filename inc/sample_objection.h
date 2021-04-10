@@ -1,5 +1,5 @@
-#ifndef __SAMPLE_PROCESS_H__
-#define __SAMPLE_PROCESS_H__
+#ifndef __SAMPLE_OBJECTION_H__
+#define __SAMPLE_OBJECTION_H__
 #include <iostream>
 #include "acl/acl.h"
 #include <pthread.h>

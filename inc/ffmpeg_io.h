@@ -1,5 +1,5 @@
-#ifndef __FFMPEG_IN_OUT_H__
-#define __FFMPEG_IN_OUT_H__
+#ifndef __FFMPEG_IO_H__
+#define __FFMPEG_IO_H__
 
 extern "C" {
 #include "libavcodec/avcodec.h"
@@ -22,7 +22,7 @@ public:
         ~FFMPEGInput();
 
         void Destroy();
-        void InputInit(const string inputPath);
+        void InputInit(const char* inputPath);
         void Run();
 
         int GetWidth();

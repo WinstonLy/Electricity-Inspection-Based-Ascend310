@@ -19,7 +19,7 @@
 
 #include <iostream>
 #include "acl/acl.h"
-#include "DvppJpegE.h"
+#include "dvpp_jpege.h"
 
 using namespace std;
 extern fstream resultVenc;
@@ -57,7 +57,7 @@ aclError DvppJpegE::InitEncodeInputDesc(uint8_t* inputImage, size_t width, size_
     uint32_t alignWidth = ALIGN_UP16(width);
     uint32_t alignHeight = ALIGN_UP2(height);
     if (alignWidth == 0 || alignHeight == 0) {
-        ATLAS_LOG_ERROR("Input image width %d or height %d invalid", width, height);
+        ATLAS_LOG_ERROR("Input image width %zu or height %zu invalid", width, height);
         return ACL_ERROR_FORMAT_NOT_MATCH;
     }
     uint32_t inputBufferSize = YUV420SP_SIZE(alignWidth, alignHeight);
@@ -141,11 +141,11 @@ aclError DvppJpegE::Process(size_t width, size_t height, vector<DetectionResult>
     clock_t endTime = clock();
     resultVenc << "venc a frame time: " << (double)(endTime - beginTime)*1000/CLOCKS_PER_SEC << " ms" <<endl;
         
-    static int countImage = 0;
-    std::string file = "./results/output" + std::to_string(countImage) + ".jpg";
-    bool flag = false;
-    WriteToFile(file.c_str(), encodeOutBufferDev, encodeOutBufferSize, flag);
-    ++countImage;
+    // static int countImage = 0;
+    // std::string file = "./results/output" + std::to_string(countImage) + ".jpg";
+    // bool flag = false;
+    // WriteToFile(file.c_str(), encodeOutBufferDev, encodeOutBufferSize, flag);
+    // ++countImage;
  
     SendImageDisplay(detectionResults);
     return ACL_ERROR_NONE;
@@ -180,7 +180,7 @@ void DvppJpegE::DestroyEncodeResource()
     // delete channel;
     // channel = nullptr;
 
-   
+    ATLAS_LOG_INFO("dvpp jpege destroy success");
 }
 void DvppJpegE::DestroyResource(){
     DestroyEncodeResource();
@@ -237,7 +237,7 @@ Result DvppJpegE::SendImageDisplay(vector<DetectionResult>& detectionResults)
     imageParam.data = (uint8_t*)encodeOutBufferDev;
     imageParam.detection_results = detectionResults;
 
-    ATLAS_LOG_INFO("imageParam width = %d, height = %d, size = %d", imageParam.width, imageParam.height, imageParam.size);
+    // ATLAS_LOG_INFO("imageParam width = %d, height = %d, size = %d", imageParam.width, imageParam.height, imageParam.size);
     //Sends the detected object frame information and frame image to the Presenter Server for display
     PresenterErrorCode errorCode = PresentImage(channel, imageParam);
     if (errorCode != PresenterErrorCode::kNone) {
@@ -246,7 +246,7 @@ Result DvppJpegE::SendImageDisplay(vector<DetectionResult>& detectionResults)
     }
     clock_t endTime = clock();
     resultSend << "send a frame time: " << (double)(endTime - beginTime)*1000/CLOCKS_PER_SEC << " ms" <<endl;
-
+    ATLAS_LOG_INFO("send img to presenter server success");
     return SUCCESS;
 }
 

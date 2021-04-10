@@ -2,11 +2,11 @@
 * @Author: winston
 * @Date:   2021-01-09 10:32:05
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-03-30 10:30:19
+* @Last Modified time: 2021-04-02 20:46:42
 * @Description: 
-* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/SampleProcess.cpp 
+* @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/sample_objection.cpp 
 */
-#include "SampleProcess.h"
+#include "sample_objection.h"
 
 static bool runFlag = true;
 

@@ -1,5 +1,5 @@
-#ifndef __DVPP_VPC_RESIZE_H__
-#define __DVPP_VPC_RESIZE_H__
+#ifndef __DVPP_VPC_H__
+#define __DVPP_VPC_H__
 
 #include "acl/acl.h"
 #include "acl/ops/acl_dvpp.h"
@@ -25,6 +25,7 @@ public:
     void GetSrcData(ImageData& frameData);
     uint8_t* GetInputBuffer();
 
+
 private:
 	int outputBufferSize;
     int inputBufferSize;
@@ -38,6 +39,10 @@ private:
     acldvppResizeConfig *resizeConfig;
     aclrtStream stream;
 
+    size_t _srcWidth;
+    size_t _dstWidth;
+    size_t _srcHeight;
+    size_t _dstHeight;
     std::function<void(uint8_t *)> bufferHandler;
 // public: 
 //     ImageData srcData;

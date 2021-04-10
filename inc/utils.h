@@ -120,7 +120,8 @@ struct InferenceOutput {
 // Description of data in device
 struct RawData {
     size_t lenOfByte; // Size of memory, bytes
-    std::shared_ptr<void> data; // Smart pointer of data
+    // std::shared_ptr<void> data; // Smart pointer of data
+    void* data;
 };
 
 // struct Point {

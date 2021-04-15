@@ -2,7 +2,7 @@
 * @Author: winston
 * @Date:   2021-01-07 20:58:09
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-04-10 22:56:31
+* @Last Modified time: 2021-04-13 22:20:37
 * @Description: 
 * @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/model_infer.cpp 
 */
@@ -12,7 +12,7 @@
 #include <mutex>
 #include <chrono>
 #include <thread>
-
+#include <sys/time.h>
 typedef std::pair<vector<size_t>, vector<void*> > imgPair;
 
 extern std::mutex mtxQueueInfer;
@@ -396,8 +396,11 @@ void ModelProcess::DestroyOutput(){
 }
 
 Result ModelProcess::Execute(){
-    clock_t beginTime = clock();
+    // clock_t beginTime = clock();
     // 异步接口
+    // 
+    struct timeval a;
+    gettimeofday(&a, NULL);
 	aclError ret = aclmdlExecuteAsync(modelId, modelInput, modelOutput, stream);
     if (ret != ACL_ERROR_NONE) {
         ATLAS_LOG_ERROR("execute model failed, modelId is %u", modelId);
@@ -415,9 +418,10 @@ Result ModelProcess::Execute(){
     //     ATLAS_LOG_ERROR("execute model failed, modelId is %u", modelId);
     //     return FAILED;
     // }
-    
-    clock_t endTime = clock();
-    resultInfer << "infer a frame time: " << (double)(endTime - beginTime)*1000/CLOCKS_PER_SEC << " ms" <<endl;
+    struct timeval b;
+    gettimeofday(&b, NULL);
+    // clock_t endTime = clock();
+    resultInfer << "infer a frame time: " << ((double)(b.tv_sec - a.tv_sec)*1000000 + (b.tv_usec - a.tv_usec)) / 1000 << " ms" <<endl;
 
     if(outputDataBuffers.size() != 0){
         mtxQueueInfer.lock();

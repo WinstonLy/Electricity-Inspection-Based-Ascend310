@@ -2,7 +2,7 @@
 * @Author: winston
 * @Date:   2021-01-09 16:06:22
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-04-10 23:31:49
+* @Last Modified time: 2021-04-13 21:11:14
 * @Description: 
 * @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/ffmpeg_io.cpp 
 */
@@ -14,8 +14,6 @@
 #include <thread>
 
 extern bool runFlag;
-extern std::mutex mtxQueueRtsp;
-extern std::queue<std::pair<int, AVPacket> > queueRtsp;
 extern fstream resultFFmpeg;
 
 // FFMPEGInput 成员函数
@@ -49,11 +47,11 @@ void FFMPEGInput::InputInit(const char* inputPath){
     AVDictionary *avdic{nullptr};	
     // 设置为 tcp 传输，最大延时时间
     av_dict_set(&avdic, "rtsp_transport", "tcp", 0);
-    av_dict_set(&avdic, "max_dealy", "100000000", 0);	
-    av_dict_set(&avdic, "buffer_size", "10485760", 0); 
-    av_dict_set(&avdic, "stimeout", "5000000", 0);
-    av_dict_set(&avdic, "pkt_size", "10485760", 0); 
-    av_dict_set(&avdic, "reorder_queue_size", "0", 0);
+    av_dict_set(&avdic, "max_dealy", "100000", 0);	
+    av_dict_set(&avdic, "buffer_size", "104857600", 0); 
+    // av_dict_set(&avdic, "stimeout", "5000000", 0);
+    // av_dict_set(&avdic, "pkt_size", "10485760", 0); 
+    // av_dict_set(&avdic, "reorder_queue_size", "0", 0);
 
     // Open an input stream and read the header. The codecs are not opened.
     uint8_t ret = avformat_open_input(&avfcRtspInput, inputPath, nullptr, &avdic);
@@ -113,7 +111,6 @@ void FFMPEGInput::InputInit(const char* inputPath){
        	av_bsf_init(bsfc);
       	needBsf = true;
   	}
-	
   	
     clock_t endTime = clock();
     resultFFmpeg << "FFMpeg init time:" << (double)(endTime - beginTime)*1000/CLOCKS_PER_SEC << " ms" <<endl;
@@ -125,24 +122,28 @@ void FFMPEGInput::Run(){
     static int indexFrame = 0;
     fstream outfile;
     //outfile.open("./data/result.txt");
-   
-    AVPacket packet;
-    av_init_packet(&packet);
-    
-
+    static int num = 100;
     // need stop flag?
     runFlag = true;
-    while(runFlag){
+    while(true){
+        if(--num > 0){
+            continue;
+        }
+        AVPacket packet;
+        av_init_packet(&packet);
+        packet.data = nullptr;
+        packet.size = 0;
+
         clock_t beginTime = clock();
    
         // 从 avfcRtspInput 中读取码流进入 packet
         // clock_t beginTime = clock();
         uint32_t ret = av_read_frame(avfcRtspInput, &packet);
-        // if(packet.data == nullptr)
-        // {
-        //     runFlag = false;
-        //     break;
-        // }
+        if(packet.data == nullptr)
+        {
+            runFlag = false;
+            break;
+        }
 	    if (ret < 0) {
         	char err_buf[AV_ERROR_MAX_STRING_SIZE] = {0};
         	std::cerr << "[FFMPEGInput::ReceiveSinglePacket] err string: "
@@ -155,58 +156,30 @@ void FFMPEGInput::Run(){
 
         clock_t endTime = clock();
         resultFFmpeg << "FFmpeg read a frame time: " << (double)(endTime - beginTime)*1000/CLOCKS_PER_SEC << " ms" <<endl;
-        
-        // if(packetHandler && packet.stream_index == videoIndex){
-        //     packetHandler(&packet);
-        // }
-        // else{
-        //     // std::cout << "stream_index != videoIndex" << std::endl;
-        //     continue;
-        // }
-	    
+	  
         if (packet.stream_index == videoIndex) {
             // test read frame packet->send vdec
-            // send video packet to ffmeg
+            // send video packet to ffmpeg
             ret = av_bsf_send_packet(bsfc, &packet);
             if (ret < 0) {
                 std::cout << "av_bsf_send_packet failed" << std::endl;
+                av_packet_unref(&packet);
                 continue;
             }
 
-		    // read a single frame from ffmpeg
-            // ATLAS_LOG_INFO("decoder send freame");
-            // packet_handler = DecoderSendFrame;
-            // while (av_bsf_receive_packet(bsfc, &packet) == 0) {
-            //     // 执行解码
-            //     // if(packetHandler){
-            //     // 	packetHandler(&packet);
-            //     // }
-            //     // av_packet_unref(&packet);
-            //     
-                
-            // }
-            
-            // packet 进入队列
-            if(av_bsf_receive_packet(bsfc, &packet) == 0)
+           
+            while(av_bsf_receive_packet(bsfc, &packet) == 0)
             {
-                mtxQueueRtsp.lock();
-                queueRtsp.push(std::make_pair(indexFrame++, packet));
+                if(packetHandler){
+                    packetHandler(&packet);
+                }
+                av_packet_unref(&packet);
             }
-            if(queueRtsp.size() >= 100){
-                
-                std::cout << "[WARNING] rtsp input size is " << queueRtsp.size() <<std::endl; 
-                
-                // 清空队列
-                std::queue<std::pair<int, AVPacket> > tempQueue;
-                swap(tempQueue, queueRtsp);
-                mtxQueueRtsp.unlock();
-            }
-            else{
-                mtxQueueRtsp.unlock();
-            }
+
+            
         }
 
-        av_packet_unref(&packet);
+        // av_packet_unref(&packet);
         // --count;
         
         // clock_t endTime = clock();

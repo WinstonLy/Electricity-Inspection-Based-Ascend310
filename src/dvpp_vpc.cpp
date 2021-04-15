@@ -2,7 +2,7 @@
 * @Author: winston
 * @Date:   2020-12-31 17:11:08
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-04-10 22:55:51
+* @Last Modified time: 2021-04-13 22:00:51
 * @Description: 
 * @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/dvpp_vpc.cpp 
 */
@@ -15,8 +15,7 @@
 #include <thread>
 
 extern fstream resultResize;
-extern std::mutex mtxQueueSrcData;
-extern std::queue<void*> queueSrcData;
+
 
 namespace {
   int modelWidth = 608;
@@ -186,14 +185,10 @@ Result DvppVpcResize::Resize(void* pdata, size_t size){
     resultResize << "resize a frame time: " << (double)(endTime - beginTime)*1000/CLOCKS_PER_SEC << " ms" <<endl;
 
 
-    // if(bufferHandler){
-    //     bufferHandler((uint8_t*)resizeOutputBuffer);
-    // }
-    // 模型初始化
-    ModelProcess modelInfer(stream, _dstWidth, _dstHeight);
-    modelInfer.Init(modelPath, resizeOutputBuffer, _dstWidth*_dstHeight*3/2);
-    modelInfer.Execute();
-    modelInfer.Destroy();
+    if(bufferHandler){
+        bufferHandler((uint8_t*)resizeOutputBuffer);
+    }
+    
 
     
     ATLAS_LOG_INFO("dvpp resize end");

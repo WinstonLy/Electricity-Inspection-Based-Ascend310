@@ -2,7 +2,7 @@
 * @Author: WinstonLy
 * @Date:   2021-04-02 20:36:33
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-04-14 20:18:39
+* @Last Modified time: 2021-04-16 14:59:12
 * @Description: 
 * @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/multi_main.cpp 
 */
@@ -254,7 +254,7 @@ void VideoDecode(const char* rtspPath){
 }
 
 // 预处理+infer的线程
-void ResizeAndInfer(){
+void ResizeAndInfer(const char* omPath){
     // bind cpu 
     cpu_set_t mask;
     int cpuId = 1;
@@ -292,7 +292,7 @@ void ResizeAndInfer(){
 
     // 模型初始化
     ModelProcess modelInfer(stream, modelWidth, modelHeight);
-    modelInfer.Init(modelPath, processVpcResize.GetOutputBuffer(), modelWidth*modelHeight*3/2);
+    modelInfer.Init(omPath, processVpcResize.GetOutputBuffer(), modelWidth*modelHeight*3/2);
    
     
     while(true){
@@ -444,7 +444,7 @@ int main(int argc, char *argv[]){
     resultSend.open("./results/resultSend.txt", ios::out);
 
     std::thread t1(VideoDecode, argv[1]);
-    std::thread t2(ResizeAndInfer);
+    std::thread t2(ResizeAndInfer, argv[2]);
     std::thread t3(PostAndJpege, modelWidth, modelHeight);
 
     

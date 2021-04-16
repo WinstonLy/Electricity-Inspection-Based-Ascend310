@@ -2,7 +2,7 @@
 * @Author: winston
 * @Date:   2021-01-07 17:08:57
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-04-14 20:06:29
+* @Last Modified time: 2021-04-16 14:33:10
 * @Description: 
 * @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/dvpp_vdec.cpp 
 */
@@ -77,7 +77,7 @@ static void VdecCallback(acldvppStreamDesc* input, acldvppPicDesc* output, void*
                 //     }
                 //     ATLAS_LOG_INFO("******** input queue is too large *************");       
                 // }
-                if(queueInput.size() > 100){
+                if(queueInput.size() > 50){
                     aclError ret = acldvppFree((void*)vdecOutBufferDev);
                     if (ret != ACL_ERROR_NONE) {
                         ATLAS_LOG_ERROR("fail to free output pic desc data ret = %d",  ret);

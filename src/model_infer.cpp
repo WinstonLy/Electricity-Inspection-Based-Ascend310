@@ -2,7 +2,7 @@
 * @Author: winston
 * @Date:   2021-01-07 20:58:09
 * @Last Modified by:   WinstonLy
-* @Last Modified time: 2021-04-13 22:20:37
+* @Last Modified time: 2021-04-16 14:38:31
 * @Description: 
 * @FilePath: /home/winston/AscendProjects/rtsp_dvpp_infer_dvpp_rtmp_test/atlas200dk_yolov4/Electricity-Inspection-Based-Ascend310/src/model_infer.cpp 
 */
@@ -425,12 +425,13 @@ Result ModelProcess::Execute(){
 
     if(outputDataBuffers.size() != 0){
         mtxQueueInfer.lock();
-        queueInfer.push(std::make_pair(outputDataBufferSizes, outputDataBuffers));
         if(queueInfer.size() > 50){
             mtxQueueInfer.unlock();
-
         }
         else{
+            std::vector<void *> dataBuffers(outputDataBuffers);
+            std::vector<size_t> bufferSizes(outputDataBufferSizes);
+            queueInfer.push(std::make_pair(bufferSizes, dataBuffers));
             mtxQueueInfer.unlock();
         }
     }

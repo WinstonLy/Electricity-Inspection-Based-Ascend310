@@ -9,7 +9,7 @@
 
 using namespace ascend::presenter;
 
-const int CLASS_NUM = 80;
+const int CLASS_NUM = 10;
 const int BIASES_NUM = 18; // Yolov3 anchors, generate from train data, coco dataset
 const float BIASES[BIASES_NUM] = {12, 16, 19, 36, 40, 28, 36, 75, 76, 55, 72, 146, 142, 110, 192, 243, 459, 401};
 const float SCORE_THRESH = 0.4; // Threshold of confidence

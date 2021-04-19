@@ -200,17 +200,24 @@
      python3.7 demo_darknet2onnx.py ./electricity_yolov4_darknet/network_final.cfg ./electricity_yolov4_darknet/network_final.weights ./data/dog.jpg 0
     ```
 
+- 利用onnxsim简化模型
+
+    ```sh
+    pip3 install onnx-simplifier
+    python3 -m onnxsim --skip-optimization  yolov4_1_3_608_608.onnx yolov4_1_3_608_608_sim.onnx
+    ```
+
 - 替换动态resize算子为静态算子，运行脚本：`python3.7 dy_resize.py yolov4_-1_3_608_608_dynamic.onnx`,出现[转换错误](#3.4 ATC转换失败)
 
 - 运行脚本进行转换：
 
     ```sh
-    atc --model=yolov4_1_3_608_608.onnx --framework=5 --output=yolov4_power --input_format=NCHW --log=error --soc_version=Ascend310 --input_shape="input:1,3,608,608" --out_nodes="Conv_388:0;Conv_404:0;Conv_420:0" --insert_op_conf=aipp.config
+    atc --model=yolov4_1_3_608_608_sim_dbs.onnx --framework=5 --output=yolov4_power --input_format=NCHW --log=info --soc_version=Ascend310 --input_shape="input:1,3,608,608" --out_nodes="Conv_388:0;Conv_404:0;Conv_420:0" --insert_op_conf=aipp.config
     ```
 
     转换出现错误，在昇腾论坛提出问题帖子：[求助](https://bbs.huaweicloud.com/forum/forum.php?mod=viewthread&tid=117996)
 
-    ### [转换过程出现的问题记录](#3 YOLO v4 Darknet到ONNX出现的问题)
+    [转换过程出现的问题记录](#3 YOLO v4 Darknet到ONNX出现的问题)
 
 ### 1 后处理代码开发问题:smile:
 
@@ -231,13 +238,13 @@
 
 4. 利用Pycharm工具调试来debug，发现排布格式为NCWH，如下图所示:shape为1x255x76x76，其中1为batch数，255则为3x85，表示每个cell预测3个bbox，85为4个坐标+1个置信度+80分类概率，后两个为特征图大小，其他两个特征图对应为38x38，19x19。以76x76的为例，特和曾图大小为76x76，通道数为255，依次分别是{x，y，w，h，iou，class1_iou, ......, class80_iou}。因此模型输出文件保存为二进制格式的存放方式为现存放x，再存放y，依次存放，最后存放80类的分类iou。这一点是在后处理解算过程中需要注意的点。
 
-    <img src="./image/feature_map.jpg" style="zoom:35%;" />                                                                   <img src="./image/feature_map_c.jpg" style="zoom:25%;" />
+    <img src="./image/feature_map.jpg" width="300" alt="featuremap">                                                     <img src="./image/feature_map_c.jpg" width=270>
 
 
 
 ### 2 openv和ffmpeg动态链接库找不到解决办法:smile:
 
-1. 首先确定是否将Alas200Dk上的相关目录拷贝到服务器上，主要有`/usr/lib/aarch64-linux-gnu`和`/home/HwHiAiUser/ascend_ddk/arm`，`/usr/lib64/`三个目录
+1. 首先确定是否将Atlas200Dk上的相关目录拷贝到服务器上，主要有`/usr/lib/aarch64-linux-gnu`和`/home/HwHiAiUser/ascend_ddk/arm`，`/usr/lib64/`三个目录
 
 2. 利用`sudo find / -name libopencv_...`类似的命令查找位置，将对应路径按照下面所示的步骤添加到环境变量中
 
@@ -293,152 +300,151 @@
         sudo ln -sf /home/winston/ascend_ddk/arm/lib/libprotobuf.so.19.0.0 /home/winston/ascend_ddk/arm/lib/libprotobuf.so.19
         ```
 
-        
 
 ### 3 YOLO v4 Darknet到ONNX出现的问题
 
-#### 3.1 出现convalution havn't activate linear：不影响转换过程:smile:
+- 出现convalution havn't activate linear：不影响转换过程:smile:
 
-#### 3.2 直接在命令行出现exit code 137，内存不足：:smile:
+* 直接在命令行出现exit code 137，内存不足：:smile:
 
-```sh
-/home/winston/.local/lib/python3.7/site-packages/numpy/core/function_base.py:120: TracerWarning: Converting a tensor to a Python index might cause the trace to be incorrect. We can't record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
-  num = operator.index(num)
-/home/winston/AscendProjects/models/Electricity_model/pytorch-YOLOv4-master/tool/yolo_layer.py:227: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
-  bx = bxy[:, ii : ii + 1] + torch.tensor(grid_x, device=device, dtype=torch.float32) # grid_x.to(device=device, dtype=torch.float32)
-/home/winston/AscendProjects/models/Electricity_model/pytorch-YOLOv4-master/tool/yolo_layer.py:229: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
-  by = bxy[:, ii + 1 : ii + 2] + torch.tensor(grid_y, device=device, dtype=torch.float32) # grid_y.to(device=device, dtype=torch.float32)
-Killed
-```
+    ```sh
+    /home/winston/.local/lib/python3.7/site-packages/numpy/core/function_base.py:120: TracerWarning: Converting a tensor to a Python index might cause the trace to be incorrect. We can't record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
+      num = operator.index(num)
+    /home/winston/AscendProjects/models/Electricity_model/pytorch-YOLOv4-master/tool/yolo_layer.py:227: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+      bx = bxy[:, ii : ii + 1] + torch.tensor(grid_x, device=device, dtype=torch.float32) # grid_x.to(device=device, dtype=torch.float32)
+    /home/winston/AscendProjects/models/Electricity_model/pytorch-YOLOv4-master/tool/yolo_layer.py:229: TracerWarning: torch.tensor results are registered as constants in the trace. You can safely ignore this warning if you use this function to create tensors out of constant variables that would be the same every time you call this function. In any other case, this might cause the trace to be incorrect.
+      by = bxy[:, ii + 1 : ii + 2] + torch.tensor(grid_y, device=device, dtype=torch.float32) # grid_y.to(device=device, dtype=torch.float32)
+    Killed
+    ```
 
-根据Pycharm上运行程序得到的结果如下：
+    根据Pycharm上运行程序得到的结果如下：
 
-```sh
-Process finished with exit code 137 (interrupted by signal 9: SIGKILL)
-```
+    ```sh
+    Process finished with exit code 137 (interrupted by signal 9: SIGKILL)
+    ```
 
-在网上查询各种原因，最终得到是环境的内存不够了，增大虚拟机的内存RAM即可解决。具体解决办法见链接：
+    在网上查询各种原因，最终得到是环境的内存不够了，增大虚拟机的内存RAM即可解决。具体解决办法见链接：
 
-[Process finished with exit code 137](https://stackoverflow.com/questions/43268156/process-finished-with-exit-code-137-in-pycharm)
+    [Process finished with exit code 137](https://stackoverflow.com/questions/43268156/process-finished-with-exit-code-137-in-pycharm)
 
-#### 3.3 后处理去除:smile:
+- 后处理去除:smile:
 
-按照[github darknet2onnx工具](https://github.com/Tianxiaomo/pytorch-YOLOv4)转换，出现的模型加上了后处理的部分，查看源码，发现整个流程是从darknet->pytorch->onnx，在darknet->pytorch的时候，源码`darknet2pytorch.py`中，对于darknet的yolo层进行处理，所以最终转换成功的模型加上了后处理部分，需要去除后处理的部分，修改`darknet2pytorch.py`，修改点如下：
+    按照[github darknet2onnx工具](https://github.com/Tianxiaomo/pytorch-YOLOv4)转换，出现的模型加上了后处理的部分，查看源码，发现整个流程是从darknet->pytorch->onnx，在darknet->pytorch的时候，源码`darknet2pytorch.py`中，对于darknet的yolo层进行处理，所以最终转换成功的模型加上了后处理部分，需要去除后处理的部分，修改`darknet2pytorch.py`，修改点如下：
 
-```sh
-#darknet2pytorch.py 
- 
- elif block['type'] == 'yolo':
-                # if self.training:
-                #     pass
-                # else:
-                #     boxes = self.models[ind](x)
-                #     out_boxes.append(boxes)
-
-                # boxes = self.models[ind](x)
-                # out_boxes.append(boxes)                      
-                
-                # 注释对于yolo层的处理，直接跳过yolo层
-                pass
-             
-            elif block['type'] == 'cost':
-                continue
+    ```sh
+    #darknet2pytorch.py 
+     
+     elif block['type'] == 'yolo':
+                    # if self.training:
+                    #     pass
+                    # else:
+                    #     boxes = self.models[ind](x)
+                    #     out_boxes.append(boxes)
+    
+                    # boxes = self.models[ind](x)
+                    # out_boxes.append(boxes)                      
+                    
+                    # 注释对于yolo层的处理，直接跳过yolo层
+                    pass
+                 
+                elif block['type'] == 'cost':
+                    continue
+                else:
+                    print('unknown type %s' % (block['type']))
+    
+            if self.training:
+                return out_boxes
             else:
-                print('unknown type %s' % (block['type']))
+                # return get_region_boxes(out_boxes)
+                # 不返回加上后处理的模型，返回最终的三个卷积层的输出，yolo层的序号分别为139,150,151
+                return outputs[138],outputs[149],outputs[160]
+    ```
 
-        if self.training:
-            return out_boxes
-        else:
-            # return get_region_boxes(out_boxes)
-            # 不返回加上后处理的模型，返回最终的三个卷积层的输出，yolo层的序号分别为139,150,151
-            return outputs[138],outputs[149],outputs[160]
-```
+    修改`darknet2onnx.py`增加3个feature map的输出节点，修改点如下：
 
-修改`darknet2onnx.py`增加3个feature map的输出节点，修改点如下：
+    ```python
+    #darknet2onnx.py
+    
+    def transform_to_onnx(cfgfile, weightfile, batch_size=1):
+        model = Darknet(cfgfile)
+    
+        model.print_network()
+        model.load_weights(weightfile)
+        print('Loading weights from %s... Done!' % (weightfile))
+    
+        dynamic = False
+        if batch_size <= 0:
+            dynamic = True
+    
+        input_names = ["input"]
+        output_names = ['feature_map_1', 'feature_map_2', 'feature_map_3'] #增加输出节点
+        # output_names = []
+    
+        x = torch.randn((1, 3, model.height, model.width), requires_grad=False)
+        model(x)
+    
+        if dynamic:
+            x = torch.randn((1, 3, model.height, model.width), requires_grad=True)
+            onnx_file_name = "yolov4_-1_3_{}_{}_dynamic.onnx".format(model.height, model.width)
+            dynamic_axes = {"input": {0: "batch_size"}, "feature_map_1": {0: "batch_size"}, "feature_map_2": {0: "batch_size"}, "feature_map_3": {0: "batch_size"}}		# 修改输出节点batchsize等信息
+            # Export the model
+            print('Export the onnx model ...')
+            torch.onnx.export(model,
+                              x,
+                              onnx_file_name,
+                              export_params=True,
+                              opset_version=11,
+                              do_constant_folding=True,
+                              input_names=input_names, output_names=output_names,
+                              dynamic_axes=dynamic_axes)
+    
+            print('Onnx model exporting done')
+            return onnx_file_name
+    ```
 
-```python
-#darknet2onnx.py
+    由于去除了后处理代码，所以在推理阶段会出错，但是不影响onnx模型的输出，用以下命令进行darknet到onnx的转换得到yolov4_1_3_608_608_static.onnx
 
-def transform_to_onnx(cfgfile, weightfile, batch_size=1):
-    model = Darknet(cfgfile)
-
-    model.print_network()
-    model.load_weights(weightfile)
-    print('Loading weights from %s... Done!' % (weightfile))
-
-    dynamic = False
-    if batch_size <= 0:
-        dynamic = True
-
-    input_names = ["input"]
-    output_names = ['feature_map_1', 'feature_map_2', 'feature_map_3'] #增加输出节点
-    # output_names = []
-
-    x = torch.randn((1, 3, model.height, model.width), requires_grad=False)
-    model(x)
-
-    if dynamic:
-        x = torch.randn((1, 3, model.height, model.width), requires_grad=True)
-        onnx_file_name = "yolov4_-1_3_{}_{}_dynamic.onnx".format(model.height, model.width)
-        dynamic_axes = {"input": {0: "batch_size"}, "feature_map_1": {0: "batch_size"}, "feature_map_2": {0: "batch_size"}, "feature_map_3": {0: "batch_size"}}		# 修改输出节点batchsize等信息
-        # Export the model
-        print('Export the onnx model ...')
-        torch.onnx.export(model,
-                          x,
-                          onnx_file_name,
-                          export_params=True,
-                          opset_version=11,
-                          do_constant_folding=True,
-                          input_names=input_names, output_names=output_names,
-                          dynamic_axes=dynamic_axes)
-
-        print('Onnx model exporting done')
-        return onnx_file_name
-```
+    ```sh
+    python3.7 demo_darknet2onnx.py ./electricity_yolov4_darknet/network_final.cfg ./electricity_yolov4_darknet/network_final.weights ./data/dog.jpg 0
+    ```
 
 
+- ATC转换失败:smile:
 
-由于去除了后处理代码，所以在推理阶段会出错，但是不影响onnx模型的输出，用以下命令进行darknet到onnx的转换得到yolov4_1_3_608_608_static.onnx
+    - 替换resize时出现问题：
 
-```sh
-python3.7 demo_darknet2onnx.py ./electricity_yolov4_darknet/network_final.cfg ./electricity_yolov4_darknet/network_final.weights ./data/dog.jpg 0
-```
+    ```sh
+    remove Constant_471 total 636
+    Traceback (most recent call last):
+      File "dy_resize.py", line 55, in <module>
+        onnx.checker.check_model(model)
+      File "/home/winston/anaconda3/envs/ascend/lib/python3.7/site-packages/onnx/checker.py", line 93, in check_model
+        C.check_model(model.SerializeToString())
+    onnx.onnx_cpp2py_export.checker.ValidationError: Nodes in a graph must be topologically sorted, however input '1128' of node: 
+    input: "1127" input: "1128" output: "1129" name: "Mul_472" op_type: "Mul"
+     is not output of any previous nodes.
+    ```
 
-#### 3.4 ATC转换失败:cry:
+    - 转换的时候出现问题：
 
-替换resize时出现问题：(未解决)
+    ```sh
+    [ERROR] TBE(11393,atc.bin):2021-04-01-21:34:22.057.726 [/home/jenkins/agent/workspace/Compile_Canndev_Centos_X86/canndev/ops/built-in/op_proto/array_ops.cc:2235][OP_PROTO] ExpandInferShape:2235 OpName:[Expand_456] "Get constValue failed of [shape]"
+    [ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.057.739 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/metadef/graph/op_desc.cc:1345]11393 CallInferFunc: ErrorNo: -1(failed) Expand_456 call infer func. ret: 4294967295
+    [ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.057.749 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/metadef/graph/shape_refiner.cc:768]11393 InferShapeAndType: ErrorNo: -1(failed) Expand_456 call infer function failed.
+    [ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.057.937 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/passes/infershape_pass.cc:41]11393 Run: ErrorNo: 1343242270(Prepare Graph infershape failed) infershape failed. node: Expand_456
+    [ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.057.959 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/passes/base_pass.cc:88]11393 RunPasses: ErrorNo: 1343225860(Internal errors) Failed to process pass InferShapePass on node Expand_456, result 1343242270, the passes will be terminated immediately.
+    [ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.057.967 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/passes/base_pass.cc:216]11393 RunPassesOneGraph: ErrorNo: 1343242270(Prepare Graph infershape failed) Failed to process passes on node Expand_456 type Expand, error code: 1343242270
+    [ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.058.204 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/preprocess/graph_preprocess.cc:1816]11393 InferShapeForPreprocess: ErrorNo: 1343242270(Prepare Graph infershape failed) Run ge_passes infershape for preprocess failed, ret:1343242270.
+    [ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.058.240 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/preprocess/graph_preprocess.cc:1407]11393 FormatAndShapeProcess: ErrorNo: 1343242270(Prepare Graph infershape failed) Prepare Graph infershape failed
+    [ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.058.252 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/preprocess/graph_preprocess.cc:1541]11393 PrepareDynShape: ErrorNo: 1343242270(Prepare Graph infershape failed) Failed to process Prepare_FormatAndShapeProcess
+    [ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.058.269 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/manager/graph_manager.cc:673]11393 PreRunOptimizeOriginalGraph: ErrorNo: 1343242270(Prepare Graph infershape failed) Failed to process GraphManager_stages.preparer.PrepareDynShape
+    [ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.058.275 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/manager/graph_manager.cc:800]11393 PreRun: ErrorNo: 1343242270(Prepare Graph infershape failed) Run PreRunOptimizeOriginalGraph failed for graph:yolov4_e.
+    ```
 
-```sh
-remove Constant_471 total 636
-Traceback (most recent call last):
-  File "dy_resize.py", line 55, in <module>
-    onnx.checker.check_model(model)
-  File "/home/winston/anaconda3/envs/ascend/lib/python3.7/site-packages/onnx/checker.py", line 93, in check_model
-    C.check_model(model.SerializeToString())
-onnx.onnx_cpp2py_export.checker.ValidationError: Nodes in a graph must be topologically sorted, however input '1128' of node: 
-input: "1127" input: "1128" output: "1129" name: "Mul_472" op_type: "Mul"
- is not output of any previous nodes.
-```
+    **解决办法**:
 
-转换的时候出现问题：（未解决）
-
-```sh
-[ERROR] TBE(11393,atc.bin):2021-04-01-21:34:22.057.726 [/home/jenkins/agent/workspace/Compile_Canndev_Centos_X86/canndev/ops/built-in/op_proto/array_ops.cc:2235][OP_PROTO] ExpandInferShape:2235 OpName:[Expand_456] "Get constValue failed of [shape]"
-[ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.057.739 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/metadef/graph/op_desc.cc:1345]11393 CallInferFunc: ErrorNo: -1(failed) Expand_456 call infer func. ret: 4294967295
-[ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.057.749 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/metadef/graph/shape_refiner.cc:768]11393 InferShapeAndType: ErrorNo: -1(failed) Expand_456 call infer function failed.
-[INFO] GE(11393,atc.bin):2021-04-01-21:34:22.057.761 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/analyzer/analyzer.cc:166]11393 GetJsonObject:GetJsonObject Success!session_id:0 graph_id:0
-[INFO] GE(11393,atc.bin):2021-04-01-21:34:22.057.849 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/analyzer/analyzer.cc:166]11393 GetJsonObject:GetJsonObject Success!session_id:0 graph_id:0
-[ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.057.937 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/passes/infershape_pass.cc:41]11393 Run: ErrorNo: 1343242270(Prepare Graph infershape failed) infershape failed. node: Expand_456
-[ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.057.959 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/passes/base_pass.cc:88]11393 RunPasses: ErrorNo: 1343225860(Internal errors) Failed to process pass InferShapePass on node Expand_456, result 1343242270, the passes will be terminated immediately.
-[ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.057.967 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/passes/base_pass.cc:216]11393 RunPassesOneGraph: ErrorNo: 1343242270(Prepare Graph infershape failed) Failed to process passes on node Expand_456 type Expand, error code: 1343242270
-[ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.058.204 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/preprocess/graph_preprocess.cc:1816]11393 InferShapeForPreprocess: ErrorNo: 1343242270(Prepare Graph infershape failed) Run ge_passes infershape for preprocess failed, ret:1343242270.
-[INFO] GE(11393,atc.bin):2021-04-01-21:34:22.058.230 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/preprocess/graph_preprocess.cc:1404]11393 FormatAndShapeProcess:[GEPERFTRACE] The time cost of GraphPrepare::InferShapeForPreprocess is [119709] micro second.
-[ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.058.240 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/preprocess/graph_preprocess.cc:1407]11393 FormatAndShapeProcess: ErrorNo: 1343242270(Prepare Graph infershape failed) Prepare Graph infershape failed
-[INFO] GE(11393,atc.bin):2021-04-01-21:34:22.058.246 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/preprocess/graph_preprocess.cc:1541]11393 PrepareDynShape:[GEPERFTRACE] The time cost of Prepare::FormatAndShapeProcess is [156736] micro second.
-[ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.058.252 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/preprocess/graph_preprocess.cc:1541]11393 PrepareDynShape: ErrorNo: 1343242270(Prepare Graph infershape failed) Failed to process Prepare_FormatAndShapeProcess
-[EVENT] GE(11393,atc.bin):2021-04-01-21:34:22.058.258 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/manager/graph_manager.cc:673]11393 PreRunOptimizeOriginalGraph:[GEPERFTRACE] The time cost of GraphManager::stages.preparer.PrepareDynShape is [165630] micro second.
-[ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.058.269 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/manager/graph_manager.cc:673]11393 PreRunOptimizeOriginalGraph: ErrorNo: 1343242270(Prepare Graph infershape failed) Failed to process GraphManager_stages.preparer.PrepareDynShape
-[ERROR] GE(11393,atc.bin):2021-04-01-21:34:22.058.275 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/manager/graph_manager.cc:800]11393 PreRun: ErrorNo: 1343242270(Prepare Graph infershape failed) Run PreRunOptimizeOriginalGraph failed for graph:yolov4_e.
-[INFO] GE(11393,atc.bin):2021-04-01-21:34:22.058.282 [/home/jenkins/agent/workspace/Compile_GraphEngine_Centos_X86/graphengine/ge/graph/manager/util/rt_context_util.cc:72]11393
-```
-
+    ```sh
+    先安装onnxsim：pip3 install onnx-simplifier
+    再运行如下命令：python3 -m onnxsim --skip-optimization src.onnx dst.onnx 完成简化
+    最后进行atc命令转换
+    ```

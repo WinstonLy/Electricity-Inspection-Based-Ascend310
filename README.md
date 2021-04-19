@@ -238,7 +238,7 @@
 
 4. 利用Pycharm工具调试来debug，发现排布格式为NCWH，如下图所示:shape为1x255x76x76，其中1为batch数，255则为3x85，表示每个cell预测3个bbox，85为4个坐标+1个置信度+80分类概率，后两个为特征图大小，其他两个特征图对应为38x38，19x19。以76x76的为例，特和曾图大小为76x76，通道数为255，依次分别是{x，y，w，h，iou，class1_iou, ......, class80_iou}。因此模型输出文件保存为二进制格式的存放方式为现存放x，再存放y，依次存放，最后存放80类的分类iou。这一点是在后处理解算过程中需要注意的点。
 
-    <img src="./image/feature_map.jpg" width="300" alt="featuremap">                                                     <img src="./image/feature_map_c.jpg" width=270>
+    <img src="./image/feature_map.jpg" width="300" alt="featuremap">                                                     <img src="./image/feature_map_c.jpg" width=300>
 
 
 
